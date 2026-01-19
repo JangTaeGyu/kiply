@@ -9,7 +9,9 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { useLeaderboardStore } from '@/stores/leaderboardStore';
 import { useReportStore } from '@/stores/reportStore';
 import { useUserStore } from '@/stores/userStore';
+import { useAchievementStore } from '@/stores/achievementStore';
 import { BADGES } from '@/types/badge';
+import { ACHIEVEMENTS, getAchievement, RARITY_COLORS, AchievementId } from '@/types/achievement';
 
 const getResultMessage = (score: number): { message: string; emoji: string; subMessage: string } => {
   if (score >= 91) return {
@@ -97,9 +99,12 @@ export default function ResultPage() {
   const { addEntry } = useLeaderboardStore();
   const { addHistoryEntry } = useReportStore();
   const { getCurrentProfile } = useUserStore();
+  const { checkAndUnlockAchievements, recordPlayDate, clearNewlyUnlocked } = useAchievementStore();
   const [displayScore, setDisplayScore] = useState(0);
   const [newBadges, setNewBadges] = useState<string[]>([]);
+  const [newAchievements, setNewAchievements] = useState<AchievementId[]>([]);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
   const [showConfetti, setShowConfetti] = useState(true);
 
@@ -120,12 +125,37 @@ export default function ResultPage() {
     if (hasSaved) return;
     setHasSaved(true);
 
-    const gameId = GAME_ID_MAP[currentResult.gameName] || '';
+    // Extract base game name (remove mode suffix like "(클래식)")
+    const baseGameName = currentResult.gameName.split(' (')[0];
+    const gameId = GAME_ID_MAP[baseGameName] || GAME_ID_MAP[currentResult.gameName] || '';
+
     if (gameId) {
+      // Record play date for streak tracking
+      recordPlayDate();
+
+      // Check for new badges
       const earnedBadges = addGameResult(gameId, currentResult);
       if (earnedBadges.length > 0) {
         setNewBadges(earnedBadges);
         setTimeout(() => setShowBadgeModal(true), 2500);
+      }
+
+      // Check for new achievements
+      const earnedAchievements = checkAndUnlockAchievements({
+        score: currentResult.score,
+        maxCombo: currentResult.maxCombo,
+        correctCount: currentResult.correctCount,
+        wrongCount: currentResult.wrongCount,
+        difficulty: currentResult.difficulty || 'easy',
+        gameMode: currentResult.gameMode || 'classic',
+        gameId,
+      });
+
+      if (earnedAchievements.length > 0) {
+        setNewAchievements(earnedAchievements);
+        // Show achievements after badges (or immediately if no badges)
+        const achievementDelay = earnedBadges.length > 0 ? 5000 : 2500;
+        setTimeout(() => setShowAchievementModal(true), achievementDelay);
       }
 
       const currentProfile = getCurrentProfile();
@@ -134,6 +164,10 @@ export default function ResultPage() {
         gameId,
         score: currentResult.score,
         maxCombo: currentResult.maxCombo,
+        difficulty: currentResult.difficulty,
+        gameMode: currentResult.gameMode,
+        correctCount: currentResult.correctCount,
+        wrongCount: currentResult.wrongCount,
       });
 
       addHistoryEntry({
@@ -163,7 +197,7 @@ export default function ResultPage() {
     setTimeout(() => setShowConfetti(false), 4000);
 
     return () => clearInterval(timer);
-  }, [currentResult, router, addGameResult, addEntry, addHistoryEntry, getCurrentProfile, hasSaved]);
+  }, [currentResult, router, addGameResult, addEntry, addHistoryEntry, getCurrentProfile, hasSaved, checkAndUnlockAchievements, recordPlayDate]);
 
   if (!currentResult) {
     return null;
@@ -404,6 +438,94 @@ export default function ResultPage() {
 
               <Button onClick={() => setShowBadgeModal(false)} className="mt-5" fullWidth variant="candy">
                 확인 ✨
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Achievement Modal */}
+      <AnimatePresence>
+        {showAchievementModal && newAchievements.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6"
+            onClick={() => {
+              setShowAchievementModal(false);
+              clearNewlyUnlocked();
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ type: 'spring', bounce: 0.4 }}
+              className="bg-white rounded-[2rem] p-6 max-w-sm w-full text-center shadow-2xl border-3 border-yellow-400"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.div
+                className="text-6xl mb-3"
+                animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }}
+                transition={{ duration: 0.5, repeat: 3 }}
+              >
+                🏅
+              </motion.div>
+              <h2 className="text-2xl font-bold text-foreground mb-1">도전 과제 달성!</h2>
+              <p className="text-text-secondary mb-4">새로운 도전 과제를 달성했어요!</p>
+
+              <div className="space-y-3">
+                {newAchievements.map((achievementId, index) => {
+                  const achievement = getAchievement(achievementId);
+                  if (!achievement) return null;
+
+                  return (
+                    <motion.div
+                      key={achievement.id}
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.15 }}
+                      className="flex items-center gap-3 rounded-2xl p-4 border-2"
+                      style={{
+                        backgroundColor: `${RARITY_COLORS[achievement.rarity]}15`,
+                        borderColor: `${RARITY_COLORS[achievement.rarity]}50`,
+                      }}
+                    >
+                      <motion.div
+                        className="text-4xl"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: index * 0.2 }}
+                      >
+                        {achievement.icon}
+                      </motion.div>
+                      <div className="text-left flex-1">
+                        <div className="font-bold text-foreground">{achievement.title}</div>
+                        <div className="text-sm text-text-secondary">{achievement.description}</div>
+                      </div>
+                      <span
+                        className="text-xs font-bold px-2 py-1 rounded-full text-white"
+                        style={{ backgroundColor: RARITY_COLORS[achievement.rarity] }}
+                      >
+                        {achievement.rarity === 'common' ? '일반' :
+                         achievement.rarity === 'rare' ? '희귀' :
+                         achievement.rarity === 'epic' ? '영웅' : '전설'}
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              <Button
+                onClick={() => {
+                  setShowAchievementModal(false);
+                  clearNewlyUnlocked();
+                }}
+                className="mt-5"
+                fullWidth
+                variant="candy"
+              >
+                멋져요! 🏆
               </Button>
             </motion.div>
           </motion.div>

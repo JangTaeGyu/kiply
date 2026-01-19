@@ -37,9 +37,22 @@ export const useLeaderboardStore = create<LeaderboardState>()(
           filtered = filtered.filter((e) => e.gameId === filter.gameId);
         }
 
+        // Filter by difficulty
+        if (filter.difficulty && filter.difficulty !== 'all') {
+          filtered = filtered.filter((e) => e.difficulty === filter.difficulty);
+        }
+
+        // Filter by game mode
+        if (filter.gameMode && filter.gameMode !== 'all') {
+          filtered = filtered.filter((e) => e.gameMode === filter.gameMode);
+        }
+
         // Filter by time range
         const now = Date.now();
-        if (filter.timeRange === 'week') {
+        if (filter.timeRange === 'day') {
+          const dayAgo = now - 24 * 60 * 60 * 1000;
+          filtered = filtered.filter((e) => e.date >= dayAgo);
+        } else if (filter.timeRange === 'week') {
           const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
           filtered = filtered.filter((e) => e.date >= weekAgo);
         } else if (filter.timeRange === 'month') {

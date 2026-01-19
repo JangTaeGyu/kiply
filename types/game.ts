@@ -5,6 +5,8 @@ export interface GameResult {
   correctCount: number;
   wrongCount: number;
   timeSpent: number;
+  difficulty?: Difficulty;
+  gameMode?: GameMode;
 }
 
 export interface GameConfig {

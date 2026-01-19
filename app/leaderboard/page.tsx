@@ -5,26 +5,36 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { LeaderboardTable } from '@/components/leaderboard';
 import { useLeaderboardStore } from '@/stores/leaderboardStore';
-import { GAMES } from '@/types/game';
+import { GAMES, Difficulty, GameMode, GAME_MODES } from '@/types/game';
 import { LeaderboardFilter } from '@/types/leaderboard';
 
-type TimeRange = 'all' | 'week' | 'month';
+type TimeRange = 'all' | 'day' | 'week' | 'month';
 
-const TIME_RANGES: { value: TimeRange; label: string }[] = [
-  { value: 'all', label: '전체' },
-  { value: 'week', label: '이번 주' },
-  { value: 'month', label: '이번 달' },
+const TIME_RANGES: { value: TimeRange; label: string; icon: string }[] = [
+  { value: 'day', label: '오늘', icon: '📅' },
+  { value: 'week', label: '이번 주', icon: '📆' },
+  { value: 'month', label: '이번 달', icon: '🗓️' },
+  { value: 'all', label: '전체', icon: '♾️' },
+];
+
+const DIFFICULTIES: { value: Difficulty | 'all'; label: string; icon: string }[] = [
+  { value: 'all', label: '전체', icon: '🎯' },
+  { value: 'easy', label: '쉬움', icon: '🌱' },
+  { value: 'medium', label: '보통', icon: '⚡' },
+  { value: 'hard', label: '어려움', icon: '🔥' },
 ];
 
 export default function LeaderboardPage() {
   const router = useRouter();
   const { getFilteredEntries } = useLeaderboardStore();
   const [selectedGame, setSelectedGame] = useState<string>('all');
-  const [timeRange, setTimeRange] = useState<TimeRange>('all');
+  const [timeRange, setTimeRange] = useState<TimeRange>('day');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all');
 
   const filter: LeaderboardFilter = {
     gameId: selectedGame,
     timeRange,
+    difficulty: selectedDifficulty,
   };
 
   const entries = getFilteredEntries(filter);
@@ -102,13 +112,33 @@ export default function LeaderboardPage() {
                 key={range.value}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setTimeRange(range.value)}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all
+                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1
                   ${timeRange === range.value
                     ? 'bg-secondary text-white'
                     : 'bg-gray-100 text-foreground/60'
                   }`}
               >
-                {range.label}
+                <span className="text-xs">{range.icon}</span>
+                <span>{range.label}</span>
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Difficulty Filter */}
+          <div className="flex gap-2">
+            {DIFFICULTIES.map((diff) => (
+              <motion.button
+                key={diff.value}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedDifficulty(diff.value)}
+                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1
+                  ${selectedDifficulty === diff.value
+                    ? 'bg-accent text-white'
+                    : 'bg-gray-100 text-foreground/60'
+                  }`}
+              >
+                <span className="text-xs">{diff.icon}</span>
+                <span>{diff.label}</span>
               </motion.button>
             ))}
           </div>

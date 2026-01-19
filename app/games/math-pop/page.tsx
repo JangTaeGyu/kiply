@@ -700,10 +700,12 @@ export default function MathPopGame() {
       correctCount,
       wrongCount,
       timeSpent,
+      difficulty,
+      gameMode,
     });
 
     router.push('/result');
-  }, [score, maxCombo, correctCount, wrongCount, setResult, router, playSound, gameMode]);
+  }, [score, maxCombo, correctCount, wrongCount, setResult, router, playSound, gameMode, difficulty]);
 
   // Activate power-up effect
   const activatePowerUp = useCallback((type: PowerUpType, x: number, y: number) => {
