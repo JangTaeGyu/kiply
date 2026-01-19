@@ -3,6 +3,7 @@ import { Gowun_Dodum } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "./components/PWARegister";
 import { AccessibilityProvider } from "./components/AccessibilityProvider";
+import { Nav, Footer } from "../components/ui";
 
 const gowunDodum = Gowun_Dodum({
   weight: "400",
@@ -26,7 +27,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#6C5CE7",
+  themeColor: "#2DD4BF",
 };
 
 export default function RootLayout({
@@ -42,9 +43,13 @@ export default function RootLayout({
           <a href="#main-content" className="skip-link">
             메인 콘텐츠로 이동
           </a>
-          <main id="main-content" className="min-h-dvh flex flex-col" role="main">
-            {children}
-          </main>
+          <div className="min-h-dvh flex flex-col">
+            <Nav />
+            <main id="main-content" className="flex-1 flex flex-col" role="main">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </AccessibilityProvider>
       </body>
     </html>

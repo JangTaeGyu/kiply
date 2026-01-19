@@ -63,14 +63,9 @@ function QuickActionButton({
           background: `linear-gradient(135deg, ${color}40 0%, ${color}20 100%)`,
         }}
       >
-        <motion.span
-          className="text-2xl"
-          animate={{ rotate: [0, -10, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: delay + 1 }}
-          aria-hidden="true"
-        >
+        <span className="text-2xl" aria-hidden="true">
           {icon}
-        </motion.span>
+        </span>
         <span className="text-xs font-bold text-white drop-shadow-sm">{label}</span>
       </motion.div>
     </Link>
