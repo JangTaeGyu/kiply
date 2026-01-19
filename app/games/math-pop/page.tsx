@@ -5,8 +5,8 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import confetti from 'canvas-confetti';
-import { GameHeader, Button, DifficultySelector } from '@/components/ui';
-import { Difficulty } from '@/types/game';
+import { GameHeader, Button, DifficultySelector, ModeSelector } from '@/components/ui';
+import { Difficulty, GameMode, GAME_MODES } from '@/types/game';
 import { useGameStore } from '@/stores/gameStore';
 import { useSound } from '@/hooks';
 
@@ -213,6 +213,7 @@ export default function MathPopGame() {
   const { setResult } = useGameStore();
   const { playSound } = useSound();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
+  const [gameMode, setGameMode] = useState<GameMode>('classic');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -227,8 +228,17 @@ export default function MathPopGame() {
   const [clouds, setClouds] = useState<Cloud[]>([]);
   const [isShaking, setIsShaking] = useState(false);
 
+  // Time Attack Mode states
+  const [timeLeft, setTimeLeft] = useState(60);
+
+  // Stage Mode states
+  const [currentStage, setCurrentStage] = useState(1);
+  const [stageQuestionCount, setStageQuestionCount] = useState(0);
+  const QUESTIONS_PER_STAGE = 10;
+
   const animationRef = useRef<number | null>(null);
   const cloudAnimationRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const gameAreaControls = useAnimation();
@@ -327,25 +337,80 @@ export default function MathPopGame() {
     }, 800);
   }, []);
 
+  // Get difficulty for stage mode (increases with stages)
+  const getStageDifficulty = useCallback((): Difficulty => {
+    if (gameMode !== 'stage') return difficulty;
+    if (currentStage <= 2) return 'easy';
+    if (currentStage <= 5) return 'medium';
+    return 'hard';
+  }, [gameMode, currentStage, difficulty]);
+
   const nextProblem = useCallback(() => {
-    const newProblem = generateProblem(difficulty);
+    const actualDifficulty = gameMode === 'stage' ? getStageDifficulty() : difficulty;
+    const newProblem = generateProblem(actualDifficulty);
     setProblem(newProblem);
     setBalloons(generateBalloons(newProblem.answer));
-  }, [difficulty]);
+  }, [difficulty, gameMode, getStageDifficulty]);
 
   const startGame = () => {
     playSound('click');
     setGameState('playing');
     setScore(0);
-    setLives(3);
     setCombo(0);
     setMaxCombo(0);
     setCorrectCount(0);
     setWrongCount(0);
     setFloatingScores([]);
     startTimeRef.current = Date.now();
+
+    // Mode-specific initialization
+    switch (gameMode) {
+      case 'classic':
+        setLives(3);
+        break;
+      case 'timeAttack':
+        setTimeLeft(60);
+        setLives(0); // No lives in time attack
+        break;
+      case 'endless':
+        setLives(0); // No lives in endless
+        break;
+      case 'stage':
+        setLives(3);
+        setCurrentStage(1);
+        setStageQuestionCount(0);
+        break;
+    }
+
     nextProblem();
   };
+
+  // Time Attack timer
+  useEffect(() => {
+    if (gameState !== 'playing' || gameMode !== 'timeAttack') return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [gameState, gameMode]);
+
+  // Time Attack game end
+  useEffect(() => {
+    if (gameMode === 'timeAttack' && timeLeft === 0 && gameState === 'playing') {
+      endGame();
+    }
+  }, [timeLeft, gameMode, gameState]);
 
   const endGame = useCallback(() => {
     setGameState('ended');
@@ -356,10 +421,13 @@ export default function MathPopGame() {
     if (cloudAnimationRef.current) {
       cancelAnimationFrame(cloudAnimationRef.current);
     }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
 
     const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
     setResult({
-      gameName: '숫자 팡팡',
+      gameName: `숫자 팡팡 (${GAME_MODES[gameMode].label})`,
       score,
       maxCombo,
       correctCount,
@@ -368,7 +436,7 @@ export default function MathPopGame() {
     });
 
     router.push('/result');
-  }, [score, maxCombo, correctCount, wrongCount, setResult, router, playSound]);
+  }, [score, maxCombo, correctCount, wrongCount, setResult, router, playSound, gameMode]);
 
   const handleBalloonTap = (balloon: Balloon) => {
     if (gameState !== 'playing' || !problem) return;
@@ -378,7 +446,12 @@ export default function MathPopGame() {
 
     if (balloon.value === problem.answer) {
       const comboBonus = combo >= 3 ? 5 : 0;
-      const earnedScore = 10 + comboBonus;
+      let earnedScore = 10 + comboBonus;
+
+      // Stage mode bonus
+      if (gameMode === 'stage') {
+        earnedScore += currentStage * 2; // Bonus points per stage
+      }
 
       setScore((prev) => prev + earnedScore);
       setCombo((prev) => {
@@ -401,9 +474,45 @@ export default function MathPopGame() {
       triggerStarBurst(balloon.x, balloon.y);
       addFloatingScore(earnedScore, balloon.x, balloon.y);
 
+      // Time Attack: Add bonus time
+      if (gameMode === 'timeAttack') {
+        setTimeLeft((prev) => Math.min(prev + 2, 99)); // +2 seconds, max 99
+      }
+
+      // Stage mode: Track progress
+      if (gameMode === 'stage') {
+        const newQuestionCount = stageQuestionCount + 1;
+        if (newQuestionCount >= QUESTIONS_PER_STAGE) {
+          // Stage cleared!
+          playSound('levelUp');
+          setCurrentStage((prev) => prev + 1);
+          setStageQuestionCount(0);
+          // Bonus points for clearing stage
+          const stageBonus = currentStage * 50;
+          setScore((prev) => prev + stageBonus);
+        } else {
+          setStageQuestionCount(newQuestionCount);
+        }
+      }
+
       setTimeout(() => nextProblem(), 500);
     } else {
-      setLives((prev) => prev - 1);
+      // Wrong answer handling based on game mode
+      switch (gameMode) {
+        case 'classic':
+        case 'stage':
+          setLives((prev) => prev - 1);
+          break;
+        case 'timeAttack':
+          // Time penalty: lose 3 seconds
+          setTimeLeft((prev) => Math.max(prev - 3, 0));
+          break;
+        case 'endless':
+          // Score penalty
+          setScore((prev) => Math.max(prev - 5, 0));
+          break;
+      }
+
       setCombo(0);
       setWrongCount((prev) => prev + 1);
       setFeedback({ type: 'wrong', key: Date.now() });
@@ -419,11 +528,13 @@ export default function MathPopGame() {
     setTimeout(() => setFeedback(null), 500);
   };
 
+  // Game over condition based on mode
   useEffect(() => {
-    if (lives <= 0 && gameState === 'playing') {
+    // Only classic and stage modes use lives
+    if ((gameMode === 'classic' || gameMode === 'stage') && lives <= 0 && gameState === 'playing') {
       endGame();
     }
-  }, [lives, gameState, endGame]);
+  }, [lives, gameState, endGame, gameMode]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -439,7 +550,19 @@ export default function MathPopGame() {
 
         const escaped = updated.filter((b) => b.y > containerHeight);
         if (escaped.some((b) => b.value === problem?.answer)) {
-          setLives((l) => Math.max(0, l - 1));
+          // Handle escape penalty based on game mode
+          switch (gameMode) {
+            case 'classic':
+            case 'stage':
+              setLives((l) => Math.max(0, l - 1));
+              break;
+            case 'timeAttack':
+              setTimeLeft((prev) => Math.max(prev - 5, 0)); // Lose 5 seconds
+              break;
+            case 'endless':
+              setScore((prev) => Math.max(prev - 10, 0)); // Lose 10 points
+              break;
+          }
           setCombo(0);
           triggerShake();
           nextProblem();
@@ -459,11 +582,11 @@ export default function MathPopGame() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameState, problem, nextProblem, triggerShake]);
+  }, [gameState, problem, nextProblem, triggerShake, gameMode]);
 
   if (gameState === 'ready') {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4 overflow-auto">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -471,17 +594,49 @@ export default function MathPopGame() {
           <Image
             src="/images/games/math-pop.svg"
             alt="숫자 팡팡"
-            width={96}
-            height={96}
+            width={80}
+            height={80}
           />
         </motion.div>
         <h1 className="text-2xl font-bold text-foreground">숫자 팡팡</h1>
-        <p className="text-foreground/60 text-center">
+        <p className="text-foreground/60 text-center text-sm">
           문제의 정답이 적힌 풍선을 터뜨려요!
         </p>
 
         <div className="w-full max-w-xs space-y-4">
-          <DifficultySelector selected={difficulty} onSelect={setDifficulty} />
+          {/* Game Mode Selector */}
+          <div>
+            <h3 className="text-sm font-bold text-foreground/60 mb-2 px-1">게임 모드</h3>
+            <ModeSelector selected={gameMode} onSelect={setGameMode} />
+          </div>
+
+          {/* Difficulty Selector - Only for classic and timeAttack modes */}
+          {(gameMode === 'classic' || gameMode === 'timeAttack' || gameMode === 'endless') && (
+            <div>
+              <h3 className="text-sm font-bold text-foreground/60 mb-2 px-1">난이도</h3>
+              <DifficultySelector selected={difficulty} onSelect={setDifficulty} />
+            </div>
+          )}
+
+          {/* Mode Description */}
+          <motion.div
+            key={gameMode}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-primary/10 rounded-xl p-3 text-sm"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">{GAME_MODES[gameMode].icon}</span>
+              <span className="font-bold">{GAME_MODES[gameMode].label}</span>
+            </div>
+            <p className="text-foreground/60 text-xs">
+              {gameMode === 'classic' && '라이프 3개로 시작해요. 라이프가 모두 없어지면 게임 종료!'}
+              {gameMode === 'timeAttack' && '60초 동안 최대 점수를 노려요! 정답 +2초, 오답 -3초'}
+              {gameMode === 'endless' && '라이프 없이 계속 플레이! 오답 시 점수가 깎여요'}
+              {gameMode === 'stage' && '10문제씩 스테이지를 클리어해요. 스테이지가 올라갈수록 어려워져요!'}
+            </p>
+          </motion.div>
+
           <Button onClick={startGame} fullWidth size="lg">
             게임 시작
           </Button>
@@ -490,12 +645,38 @@ export default function MathPopGame() {
     );
   }
 
+  // Determine which props to pass to GameHeader based on game mode
+  const getHeaderProps = () => {
+    const baseProps = {
+      title: '숫자 팡팡',
+      score,
+    };
+
+    switch (gameMode) {
+      case 'classic':
+        return { ...baseProps, lives };
+      case 'timeAttack':
+        return { ...baseProps, timeLeft };
+      case 'endless':
+        return baseProps; // No lives or time
+      case 'stage':
+        return {
+          ...baseProps,
+          lives,
+          stage: currentStage,
+          stageProgress: { current: stageQuestionCount, total: QUESTIONS_PER_STAGE },
+        };
+      default:
+        return baseProps;
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col">
-      <GameHeader title="숫자 팡팡" score={score} lives={lives} />
+      <GameHeader {...getHeaderProps()} />
 
       {/* Problem Display */}
-      <div className="bg-white/90 backdrop-blur-sm py-4 px-6 text-center shadow-sm">
+      <div className="bg-white/90 backdrop-blur-sm py-4 px-6 text-center shadow-sm relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={problem?.text}
@@ -510,6 +691,17 @@ export default function MathPopGame() {
         <div className="mt-1 h-6">
           <ComboDisplay combo={combo} />
         </div>
+
+        {/* Endless mode quit button */}
+        {gameMode === 'endless' && (
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => endGame()}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-error/20 text-error px-3 py-1 rounded-full text-sm font-medium hover:bg-error/30 transition-colors"
+          >
+            종료
+          </motion.button>
+        )}
       </div>
 
       {/* Game Area */}

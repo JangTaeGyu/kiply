@@ -32,6 +32,43 @@ export const DIFFICULTIES: Record<Difficulty, DifficultyConfig> = {
   hard: { label: '어려움', stars: 3, description: '실력을 뽐내봐요' },
 };
 
+// Game Modes
+export type GameMode = 'classic' | 'timeAttack' | 'endless' | 'stage';
+
+export interface GameModeConfig {
+  label: string;
+  icon: string;
+  description: string;
+  color: string;
+}
+
+export const GAME_MODES: Record<GameMode, GameModeConfig> = {
+  classic: {
+    label: '클래식',
+    icon: '🎮',
+    description: '라이프 3개로 플레이해요',
+    color: '#4ECDC4',
+  },
+  timeAttack: {
+    label: '타임어택',
+    icon: '⏱️',
+    description: '60초 안에 최대 점수 도전!',
+    color: '#FF6B6B',
+  },
+  endless: {
+    label: '무한 모드',
+    icon: '♾️',
+    description: '끝없이 도전해요',
+    color: '#9B59B6',
+  },
+  stage: {
+    label: '스테이지',
+    icon: '🏆',
+    description: '10문제씩 클리어해요',
+    color: '#F39C12',
+  },
+};
+
 export const GAMES: GameConfig[] = [
   {
     id: 'math-pop',

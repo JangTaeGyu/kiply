@@ -10,6 +10,8 @@ interface GameHeaderProps {
   maxLives?: number;
   timeLeft?: number;
   showBack?: boolean;
+  stage?: number;
+  stageProgress?: { current: number; total: number };
 }
 
 export function GameHeader({
@@ -19,6 +21,8 @@ export function GameHeader({
   maxLives = 3,
   timeLeft,
   showBack = true,
+  stage,
+  stageProgress,
 }: GameHeaderProps) {
   // Determine time warning state
   const isTimeWarning = timeLeft !== undefined && timeLeft <= 10;
@@ -70,6 +74,29 @@ export function GameHeader({
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Stage Display */}
+        {stage !== undefined && (
+          <motion.div
+            key={stage}
+            initial={{ scale: 1.2 }}
+            animate={{ scale: 1 }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold
+                       bg-accent/20 text-accent-dark"
+          >
+            <span>🏆</span>
+            <span>스테이지 {stage}</span>
+          </motion.div>
+        )}
+
+        {/* Stage Progress */}
+        {stageProgress && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium
+                         bg-primary-light/30 text-primary-dark text-sm">
+            <span>📝</span>
+            <span>{stageProgress.current}/{stageProgress.total}</span>
+          </div>
+        )}
+
         {/* Timer */}
         {timeLeft !== undefined && (
           <motion.div
