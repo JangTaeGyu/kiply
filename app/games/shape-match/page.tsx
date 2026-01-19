@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { GameHeader, Button } from '@/components/ui';
 import { useGameStore } from '@/stores/gameStore';
 import { Difficulty, DIFFICULTIES } from '@/types/game';
@@ -275,9 +276,13 @@ export default function ShapeMatchGame() {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="text-7xl"
         >
-          🔷
+          <Image
+            src="/images/games/shape-match.svg"
+            alt="도형 맞추기"
+            width={96}
+            height={96}
+          />
         </motion.div>
         <h1 className="text-2xl font-bold text-foreground">도형 맞추기</h1>
         <p className="text-foreground/60 text-center">

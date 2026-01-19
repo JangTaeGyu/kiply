@@ -10,19 +10,14 @@ interface GameCardProps {
   index: number;
 }
 
-// Color schemes for different game cards
-const colorSchemes = [
-  { bg: 'from-pink-50 to-rose-50', border: '#FFB3CC', shadow: 'rgba(255, 107, 157, 0.2)' },
-  { bg: 'from-cyan-50 to-blue-50', border: '#7EEAFF', shadow: 'rgba(0, 212, 255, 0.2)' },
-  { bg: 'from-amber-50 to-yellow-50', border: '#FFEB8A', shadow: 'rgba(255, 217, 61, 0.2)' },
-  { bg: 'from-emerald-50 to-green-50', border: '#A8E6A3', shadow: 'rgba(107, 203, 119, 0.2)' },
-  { bg: 'from-orange-50 to-amber-50', border: '#FFCBA4', shadow: 'rgba(255, 140, 140, 0.2)' },
-  { bg: 'from-purple-50 to-violet-50', border: '#D4BFFF', shadow: 'rgba(176, 136, 249, 0.2)' },
-  { bg: 'from-teal-50 to-cyan-50', border: '#7FDBDA', shadow: 'rgba(127, 219, 218, 0.2)' },
-];
+// Unified color scheme - Mint/Teal theme
+const cardStyle = {
+  bg: 'from-teal-50 to-cyan-50',
+  border: '#99F6E4',
+  shadow: 'rgba(45, 212, 191, 0.15)',
+};
 
 export function GameCard({ game, index }: GameCardProps) {
-  const scheme = colorSchemes[index % colorSchemes.length];
 
   return (
     <motion.div
@@ -42,13 +37,13 @@ export function GameCard({ game, index }: GameCardProps) {
         <motion.div
           whileTap={{ scale: 0.97 }}
           whileHover={{ scale: 1.02, y: -2 }}
-          className={`relative bg-gradient-to-br ${scheme.bg} rounded-3xl p-4
+          className={`relative bg-gradient-to-br ${cardStyle.bg} rounded-3xl p-4
                      flex items-center gap-4 cursor-pointer
                      border-3 transition-all duration-300 touch-target
                      overflow-hidden group`}
           style={{
-            borderColor: scheme.border,
-            boxShadow: `0 4px 20px ${scheme.shadow}`,
+            borderColor: cardStyle.border,
+            boxShadow: `0 4px 20px ${cardStyle.shadow}`,
           }}
         >
           {/* Decorative sparkle on hover */}
@@ -63,20 +58,14 @@ export function GameCard({ game, index }: GameCardProps) {
           {/* Icon Container with SVG image */}
           <motion.div
             className="relative w-16 h-16 rounded-2xl flex items-center justify-center
-                       shadow-inner overflow-hidden"
-            style={{
-              background: `linear-gradient(135deg, ${game.color}20 0%, ${game.color}10 100%)`,
-              border: `2px solid ${game.color}30`,
-            }}
+                       shadow-inner overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5
+                       border-2 border-primary/20"
             whileHover={{ rotate: [0, -5, 5, 0] }}
             transition={{ duration: 0.3 }}
           >
             {/* Animated ring on hover */}
             <motion.div
-              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100"
-              style={{
-                border: `2px solid ${game.color}`,
-              }}
+              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 border-2 border-primary"
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
             />
@@ -94,8 +83,7 @@ export function GameCard({ game, index }: GameCardProps) {
             <h3 className="font-bold text-lg text-foreground truncate flex items-center gap-2">
               {game.nameKo}
               <motion.span
-                className="text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ color: game.color }}
+                className="text-xs opacity-0 group-hover:opacity-100 transition-opacity text-primary"
               >
                 GO!
               </motion.span>
@@ -103,25 +91,13 @@ export function GameCard({ game, index }: GameCardProps) {
             <p className="text-sm text-text-secondary truncate">{game.description}</p>
           </div>
 
-          {/* Play Arrow with animation */}
-          <motion.div
-            className="w-10 h-10 rounded-full flex items-center justify-center
-                       shadow-md"
-            style={{
-              background: `linear-gradient(135deg, ${game.color} 0%, ${game.color}CC 100%)`,
-            }}
-            whileHover={{ scale: 1.15 }}
-            animate={{
-              x: [0, 3, 0],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
+          {/* Play Arrow - Unified primary color */}
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-md
+                       bg-gradient-to-br from-primary to-primary-dark"
           >
             <span className="text-white text-lg font-bold ml-0.5">▶</span>
-          </motion.div>
+          </div>
         </motion.div>
       </Link>
     </motion.div>

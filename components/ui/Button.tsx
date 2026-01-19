@@ -19,29 +19,29 @@ const variantStyles = {
   primary: {
     bg: 'bg-gradient-to-br from-primary to-primary-dark',
     text: 'text-white',
-    shadow: 'shadow-[0_6px_20px_rgba(255,107,157,0.4)]',
-    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(255,107,157,0.5)]',
+    shadow: 'shadow-[0_6px_20px_rgba(45,212,191,0.4)]',
+    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(45,212,191,0.5)]',
     border: 'border-2 border-primary-light/50',
   },
   secondary: {
     bg: 'bg-gradient-to-br from-secondary to-secondary-dark',
     text: 'text-white',
-    shadow: 'shadow-[0_6px_20px_rgba(0,212,255,0.4)]',
-    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(0,212,255,0.5)]',
+    shadow: 'shadow-[0_6px_20px_rgba(6,182,212,0.4)]',
+    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(6,182,212,0.5)]',
     border: 'border-2 border-secondary-light/50',
   },
   accent: {
     bg: 'bg-gradient-to-br from-accent to-accent-dark',
     text: 'text-foreground',
-    shadow: 'shadow-[0_6px_20px_rgba(255,217,61,0.4)]',
-    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(255,217,61,0.5)]',
+    shadow: 'shadow-[0_6px_20px_rgba(251,191,36,0.4)]',
+    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(251,191,36,0.5)]',
     border: 'border-2 border-accent-light/50',
   },
   success: {
-    bg: 'bg-gradient-to-br from-success to-[#4CAF50]',
+    bg: 'bg-gradient-to-br from-success to-[#059669]',
     text: 'text-white',
-    shadow: 'shadow-[0_6px_20px_rgba(107,203,119,0.4)]',
-    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(107,203,119,0.5)]',
+    shadow: 'shadow-[0_6px_20px_rgba(52,211,153,0.4)]',
+    hoverShadow: 'hover:shadow-[0_8px_25px_rgba(52,211,153,0.5)]',
     border: 'border-2 border-success-light/50',
   },
   ghost: {
@@ -55,7 +55,7 @@ const variantStyles = {
     bg: 'bg-gradient-candy',
     text: 'text-white',
     shadow: 'shadow-candy',
-    hoverShadow: 'hover:shadow-[0_10px_30px_rgba(255,107,157,0.5)]',
+    hoverShadow: 'hover:shadow-[0_10px_30px_rgba(45,212,191,0.5)]',
     border: 'border-2 border-white/30',
   },
 };
@@ -104,30 +104,9 @@ export function Button({
       disabled={disabled}
       onClick={onClick}
     >
-      {/* Shine effect */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full"
-        animate={{ x: ['0%', '200%'] }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatDelay: 3,
-          ease: "easeInOut"
-        }}
-        style={{ width: '50%' }}
-      />
-
       {/* Content */}
       <span className="relative z-10 flex items-center gap-2">
-        {icon && (
-          <motion.span
-            className="text-lg"
-            animate={{ rotate: [0, -10, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-          >
-            {icon}
-          </motion.span>
-        )}
+        {icon && <span className="text-lg">{icon}</span>}
         {children}
       </span>
     </motion.button>

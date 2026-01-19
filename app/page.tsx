@@ -194,10 +194,10 @@ export default function Home() {
 
         {/* Quick Actions - Colorful Buttons */}
         <div className="flex justify-center gap-3 mt-8 relative z-10">
-          <QuickActionButton href="/leaderboard" icon="🏆" label="리더보드" color="#FFD93D" delay={0.5} />
-          <QuickActionButton href="/report" icon="📊" label="리포트" color="#6BCB77" delay={0.6} />
-          <QuickActionButton href="/profile" icon="👤" label="프로필" color="#00D4FF" delay={0.7} />
-          <QuickActionButton href="/settings" icon="⚙️" label="설정" color="#B088F9" delay={0.8} />
+          <QuickActionButton href="/leaderboard" icon="🏆" label="리더보드" color="#FBBF24" delay={0.5} />
+          <QuickActionButton href="/report" icon="📊" label="리포트" color="#34D399" delay={0.6} />
+          <QuickActionButton href="/profile" icon="👤" label="프로필" color="#06B6D4" delay={0.7} />
+          <QuickActionButton href="/settings" icon="⚙️" label="설정" color="#A78BFA" delay={0.8} />
         </div>
       </div>
 

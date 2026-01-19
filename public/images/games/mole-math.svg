@@ -34,19 +34,19 @@
   <ellipse cx="59" cy="38" rx="2" ry="2.5" fill="white"/>
 
   <!-- Nose -->
-  <ellipse cx="50" cy="50" rx="6" ry="5" fill="#FF6B9D"/>
+  <ellipse cx="50" cy="50" rx="6" ry="5" fill="#2DD4BF"/>
   <ellipse cx="48" cy="48" rx="2" ry="1.5" fill="rgba(255,255,255,0.4)"/>
 
   <!-- Mouth -->
   <path d="M44 56 Q50 62 56 56" fill="none" stroke="#2D1F14" stroke-width="2" stroke-linecap="round"/>
 
   <!-- Cheeks -->
-  <ellipse cx="35" cy="50" rx="5" ry="4" fill="rgba(255,107,157,0.4)"/>
-  <ellipse cx="65" cy="50" rx="5" ry="4" fill="rgba(255,107,157,0.4)"/>
+  <ellipse cx="35" cy="50" rx="5" ry="4" fill="rgba(45,212,191,0.4)"/>
+  <ellipse cx="65" cy="50" rx="5" ry="4" fill="rgba(45,212,191,0.4)"/>
 
   <!-- Number bubble -->
-  <circle cx="78" cy="20" r="15" fill="white" stroke="#00D4FF" stroke-width="2"/>
-  <text x="78" y="26" text-anchor="middle" fill="#00D4FF" font-size="16" font-weight="bold" font-family="Arial">5</text>
+  <circle cx="78" cy="20" r="15" fill="white" stroke="#06B6D4" stroke-width="2"/>
+  <text x="78" y="26" text-anchor="middle" fill="#06B6D4" font-size="16" font-weight="bold" font-family="Arial">5</text>
 
   <!-- Hammer hint -->
   <rect x="5" y="10" width="8" height="25" rx="2" fill="#8B6914"/>

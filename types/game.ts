@@ -40,7 +40,7 @@ export const GAMES: GameConfig[] = [
     description: '풍선을 터뜨려 정답을 맞춰봐요!',
     icon: '🧮',
     iconImage: '/images/games/math-pop.svg',
-    color: '#FF6B9D',
+    color: '#2DD4BF',
     path: '/games/math-pop',
   },
   {
@@ -50,7 +50,7 @@ export const GAMES: GameConfig[] = [
     description: '같은 그림을 찾아봐요!',
     icon: '🃏',
     iconImage: '/images/games/memory-match.svg',
-    color: '#B088F9',
+    color: '#A78BFA',
     path: '/games/memory-match',
   },
   {
@@ -60,7 +60,7 @@ export const GAMES: GameConfig[] = [
     description: '글자를 모아 단어를 완성해요!',
     icon: '🔤',
     iconImage: '/images/games/word-hunt.svg',
-    color: '#6BCB77',
+    color: '#34D399',
     path: '/games/word-hunt',
   },
   {
@@ -70,7 +70,7 @@ export const GAMES: GameConfig[] = [
     description: '지시한 색깔을 빠르게 터치해요!',
     icon: '🎨',
     iconImage: '/images/games/color-touch.svg',
-    color: '#00D4FF',
+    color: '#06B6D4',
     path: '/games/color-touch',
   },
   {
@@ -80,7 +80,7 @@ export const GAMES: GameConfig[] = [
     description: '정답 두더지를 잡아요!',
     icon: '🐹',
     iconImage: '/images/games/mole-math.svg',
-    color: '#8B7355',
+    color: '#78716C',
     path: '/games/mole-math',
   },
   {
@@ -90,7 +90,7 @@ export const GAMES: GameConfig[] = [
     description: '패턴을 기억하고 따라해요!',
     icon: '🧩',
     iconImage: '/images/games/sequence.svg',
-    color: '#FFD93D',
+    color: '#FBBF24',
     path: '/games/sequence',
   },
   {
@@ -100,7 +100,7 @@ export const GAMES: GameConfig[] = [
     description: '같은 도형을 찾아봐요!',
     icon: '🔷',
     iconImage: '/images/games/shape-match.svg',
-    color: '#00D4FF',
+    color: '#0EA5E9',
     path: '/games/shape-match',
   },
 ];

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { GameHeader, Button, DifficultySelector } from '@/components/ui';
 import { Difficulty } from '@/types/game';
 import { useGameStore } from '@/stores/gameStore';
@@ -211,9 +212,13 @@ export default function MathPopGame() {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="text-7xl"
         >
-          🧮
+          <Image
+            src="/images/games/math-pop.svg"
+            alt="숫자 팡팡"
+            width={96}
+            height={96}
+          />
         </motion.div>
         <h1 className="text-2xl font-bold text-foreground">숫자 팡팡</h1>
         <p className="text-foreground/60 text-center">

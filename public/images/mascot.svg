@@ -8,8 +8,8 @@
     </linearGradient>
     <!-- Gradient for cheeks -->
     <radialGradient id="cheekGradient">
-      <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:0.6"/>
-      <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:0"/>
+      <stop offset="0%" style="stop-color:#2DD4BF;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#2DD4BF;stop-opacity:0"/>
     </radialGradient>
     <!-- Sparkle gradient -->
     <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -54,7 +54,7 @@
   <!-- Crown/Hat -->
   <path d="M70 45 L85 25 L100 40 L115 25 L130 45"
         fill="none"
-        stroke="#FF6B9D"
+        stroke="#2DD4BF"
         stroke-width="4"
         stroke-linecap="round"
         stroke-linejoin="round"/>

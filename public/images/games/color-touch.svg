@@ -2,23 +2,23 @@
   <!-- Color Touch - Colorful circles with hand -->
   <defs>
     <linearGradient id="pink" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FF6B9D"/>
-      <stop offset="100%" style="stop-color:#E84A7F"/>
+      <stop offset="0%" style="stop-color:#2DD4BF"/>
+      <stop offset="100%" style="stop-color:#14B8A6"/>
     </linearGradient>
     <linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00D4FF"/>
-      <stop offset="100%" style="stop-color:#00A8CC"/>
+      <stop offset="0%" style="stop-color:#06B6D4"/>
+      <stop offset="100%" style="stop-color:#0891B2"/>
     </linearGradient>
     <linearGradient id="yellow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFD93D"/>
-      <stop offset="100%" style="stop-color:#F4C430"/>
+      <stop offset="0%" style="stop-color:#FBBF24"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
     </linearGradient>
     <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6BCB77"/>
-      <stop offset="100%" style="stop-color:#4CAF50"/>
+      <stop offset="0%" style="stop-color:#34D399"/>
+      <stop offset="100%" style="stop-color:#059669"/>
     </linearGradient>
     <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#B088F9"/>
+      <stop offset="0%" style="stop-color:#A78BFA"/>
       <stop offset="100%" style="stop-color:#8B5CF6"/>
     </linearGradient>
   </defs>
@@ -46,5 +46,5 @@
   </g>
 
   <!-- Tap effect circles -->
-  <circle cx="50" cy="50" r="25" fill="none" stroke="#FFD93D" stroke-width="2" stroke-dasharray="4,4" opacity="0.5"/>
+  <circle cx="50" cy="50" r="25" fill="none" stroke="#FBBF24" stroke-width="2" stroke-dasharray="4,4" opacity="0.5"/>
 </svg>

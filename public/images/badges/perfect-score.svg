@@ -19,9 +19,9 @@
         fill="url(#crown)" stroke="#B8860B" stroke-width="1"/>
 
   <!-- Gems on crown -->
-  <circle cx="32" cy="32" r="3" fill="#FF6B9D"/>
-  <circle cx="40" cy="25" r="4" fill="#00D4FF"/>
-  <circle cx="48" cy="32" r="3" fill="#6BCB77"/>
+  <circle cx="32" cy="32" r="3" fill="#2DD4BF"/>
+  <circle cx="40" cy="25" r="4" fill="#06B6D4"/>
+  <circle cx="48" cy="32" r="3" fill="#34D399"/>
 
   <!-- 100 text -->
   <text x="40" y="62" text-anchor="middle" fill="#B8860B" font-size="14" font-weight="bold" font-family="Arial">100</text>

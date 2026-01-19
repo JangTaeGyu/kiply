@@ -2,40 +2,40 @@
   <!-- Math Pop - Balloons with numbers -->
   <defs>
     <linearGradient id="balloon1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FF6B9D"/>
-      <stop offset="100%" style="stop-color:#E84A7F"/>
+      <stop offset="0%" style="stop-color:#2DD4BF"/>
+      <stop offset="100%" style="stop-color:#14B8A6"/>
     </linearGradient>
     <linearGradient id="balloon2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00D4FF"/>
-      <stop offset="100%" style="stop-color:#00A8CC"/>
+      <stop offset="0%" style="stop-color:#06B6D4"/>
+      <stop offset="100%" style="stop-color:#0891B2"/>
     </linearGradient>
     <linearGradient id="balloon3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFD93D"/>
-      <stop offset="100%" style="stop-color:#F4C430"/>
+      <stop offset="0%" style="stop-color:#FBBF24"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
     </linearGradient>
   </defs>
 
-  <!-- Pink Balloon -->
+  <!-- Teal Balloon -->
   <ellipse cx="30" cy="35" rx="22" ry="28" fill="url(#balloon1)"/>
   <ellipse cx="24" cy="28" rx="6" ry="8" fill="rgba(255,255,255,0.3)"/>
-  <polygon points="30,63 26,70 34,70" fill="#E84A7F"/>
-  <path d="M30 70 Q32 80 28 90" stroke="#E84A7F" stroke-width="2" fill="none"/>
+  <polygon points="30,63 26,70 34,70" fill="#14B8A6"/>
+  <path d="M30 70 Q32 80 28 90" stroke="#14B8A6" stroke-width="2" fill="none"/>
   <text x="30" y="42" text-anchor="middle" fill="white" font-size="18" font-weight="bold" font-family="Arial">3</text>
 
-  <!-- Blue Balloon -->
+  <!-- Cyan Balloon -->
   <ellipse cx="70" cy="30" rx="20" ry="26" fill="url(#balloon2)"/>
   <ellipse cx="64" cy="24" rx="5" ry="7" fill="rgba(255,255,255,0.3)"/>
-  <polygon points="70,56 66,62 74,62" fill="#00A8CC"/>
-  <path d="M70 62 Q68 72 72 85" stroke="#00A8CC" stroke-width="2" fill="none"/>
+  <polygon points="70,56 66,62 74,62" fill="#0891B2"/>
+  <path d="M70 62 Q68 72 72 85" stroke="#0891B2" stroke-width="2" fill="none"/>
   <text x="70" y="36" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial">7</text>
 
   <!-- Yellow Balloon -->
   <ellipse cx="50" cy="55" rx="18" ry="23" fill="url(#balloon3)"/>
   <ellipse cx="45" cy="49" rx="5" ry="6" fill="rgba(255,255,255,0.3)"/>
-  <polygon points="50,78 47,83 53,83" fill="#F4C430"/>
-  <path d="M50 83 Q52 90 48 98" stroke="#F4C430" stroke-width="2" fill="none"/>
+  <polygon points="50,78 47,83 53,83" fill="#F59E0B"/>
+  <path d="M50 83 Q52 90 48 98" stroke="#F59E0B" stroke-width="2" fill="none"/>
   <text x="50" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="Arial">5</text>
 
   <!-- Plus sign -->
-  <text x="48" y="22" fill="#6BCB77" font-size="20" font-weight="bold" font-family="Arial">+</text>
+  <text x="48" y="22" fill="#34D399" font-size="20" font-weight="bold" font-family="Arial">+</text>
 </svg>
