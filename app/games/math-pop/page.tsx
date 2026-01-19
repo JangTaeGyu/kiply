@@ -88,32 +88,138 @@ const hexToRgb = (hex: string): [number, number, number] => {
     : [255, 255, 255];
 };
 
-const generateProblem = (difficulty: Difficulty): Problem => {
-  let a: number, b: number, answer: number, text: string;
+// Problem generation with expanded types
+type OperationType = 'add' | 'subtract' | 'multiply' | 'divide' | 'consecutive';
+
+const generateProblem = (difficulty: Difficulty, dynamicLevel: number = 0): Problem => {
+  let answer: number, text: string;
+
+  // Adjust effective difficulty based on dynamic level
+  const effectiveLevel = Math.min(2, Math.max(0, dynamicLevel));
 
   if (difficulty === 'easy') {
-    a = Math.floor(Math.random() * 9) + 1;
-    b = Math.floor(Math.random() * 9) + 1;
-    answer = a + b;
-    text = `${a} + ${b} = ?`;
-  } else if (difficulty === 'medium') {
-    const isAddition = Math.random() > 0.5;
-    if (isAddition) {
-      a = Math.floor(Math.random() * 15) + 1;
-      b = Math.floor(Math.random() * 15) + 1;
+    // Easy: Addition only, small numbers
+    const a = Math.floor(Math.random() * 9) + 1;
+    const b = Math.floor(Math.random() * 9) + 1;
+
+    // At higher dynamic levels, occasionally add consecutive calculation
+    if (effectiveLevel >= 1 && Math.random() < 0.3) {
+      const c = Math.floor(Math.random() * 5) + 1;
+      answer = a + b + c;
+      text = `${a} + ${b} + ${c} = ?`;
+    } else {
       answer = a + b;
       text = `${a} + ${b} = ?`;
-    } else {
-      a = Math.floor(Math.random() * 15) + 5;
-      b = Math.floor(Math.random() * Math.min(a, 15)) + 1;
-      answer = a - b;
-      text = `${a} - ${b} = ?`;
+    }
+  } else if (difficulty === 'medium') {
+    // Medium: Addition, subtraction, and at higher levels multiplication
+    const operations: OperationType[] = ['add', 'subtract'];
+    if (effectiveLevel >= 1) operations.push('multiply');
+    if (effectiveLevel >= 2) operations.push('consecutive');
+
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+
+    switch (operation) {
+      case 'add': {
+        const a = Math.floor(Math.random() * 15) + 1;
+        const b = Math.floor(Math.random() * 15) + 1;
+        answer = a + b;
+        text = `${a} + ${b} = ?`;
+        break;
+      }
+      case 'subtract': {
+        const a = Math.floor(Math.random() * 15) + 5;
+        const b = Math.floor(Math.random() * Math.min(a, 15)) + 1;
+        answer = a - b;
+        text = `${a} - ${b} = ?`;
+        break;
+      }
+      case 'multiply': {
+        const a = Math.floor(Math.random() * 6) + 2;
+        const b = Math.floor(Math.random() * 6) + 2;
+        answer = a * b;
+        text = `${a} × ${b} = ?`;
+        break;
+      }
+      case 'consecutive': {
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
+        const c = Math.floor(Math.random() * 10) + 1;
+        const isAdd = Math.random() > 0.5;
+        if (isAdd) {
+          answer = a + b + c;
+          text = `${a} + ${b} + ${c} = ?`;
+        } else {
+          const sorted = [a, b, c].sort((x, y) => y - x);
+          answer = sorted[0] - sorted[1] - sorted[2];
+          if (answer < 0) {
+            answer = sorted[0] + sorted[1] - sorted[2];
+            text = `${sorted[0]} + ${sorted[1]} - ${sorted[2]} = ?`;
+          } else {
+            text = `${sorted[0]} - ${sorted[1]} - ${sorted[2]} = ?`;
+          }
+        }
+        break;
+      }
+      default: {
+        const a = Math.floor(Math.random() * 15) + 1;
+        const b = Math.floor(Math.random() * 15) + 1;
+        answer = a + b;
+        text = `${a} + ${b} = ?`;
+      }
     }
   } else {
-    a = Math.floor(Math.random() * 8) + 2;
-    b = Math.floor(Math.random() * 8) + 2;
-    answer = a * b;
-    text = `${a} × ${b} = ?`;
+    // Hard: All operations including division and mixed operations
+    const operations: OperationType[] = ['multiply', 'divide'];
+    if (effectiveLevel >= 1) operations.push('consecutive');
+
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+
+    switch (operation) {
+      case 'multiply': {
+        const a = Math.floor(Math.random() * 9) + 2;
+        const b = Math.floor(Math.random() * 9) + 2;
+        answer = a * b;
+        text = `${a} × ${b} = ?`;
+        break;
+      }
+      case 'divide': {
+        // Generate division with clean answers (no remainders)
+        const b = Math.floor(Math.random() * 9) + 2; // divisor: 2-10
+        const answer_val = Math.floor(Math.random() * 9) + 1; // quotient: 1-9
+        const a = b * answer_val; // dividend
+        answer = answer_val;
+        text = `${a} ÷ ${b} = ?`;
+        break;
+      }
+      case 'consecutive': {
+        // Mixed operation: a × b + c or a × b - c
+        const a = Math.floor(Math.random() * 5) + 2;
+        const b = Math.floor(Math.random() * 5) + 2;
+        const c = Math.floor(Math.random() * 10) + 1;
+        const isAdd = Math.random() > 0.5;
+        if (isAdd) {
+          answer = a * b + c;
+          text = `${a} × ${b} + ${c} = ?`;
+        } else {
+          const product = a * b;
+          if (product > c) {
+            answer = product - c;
+            text = `${a} × ${b} - ${c} = ?`;
+          } else {
+            answer = product + c;
+            text = `${a} × ${b} + ${c} = ?`;
+          }
+        }
+        break;
+      }
+      default: {
+        const a = Math.floor(Math.random() * 9) + 2;
+        const b = Math.floor(Math.random() * 9) + 2;
+        answer = a * b;
+        text = `${a} × ${b} = ?`;
+      }
+    }
   }
 
   return { text, answer };
@@ -143,7 +249,8 @@ const generateBalloons = (
   answer: number,
   count: number = 6,
   gameMode: GameMode = 'classic',
-  hasLives: boolean = true
+  hasLives: boolean = true,
+  speedMod: number = 1
 ): Balloon[] => {
   const balloons: Balloon[] = [];
   const values = new Set<number>();
@@ -163,6 +270,10 @@ const generateBalloons = (
   // Decide if we should add a power-up balloon (separate from answer balloons)
   const powerUp = getRandomPowerUp(gameMode, hasLives);
 
+  // Base speed with modifier applied (clamped between 0.3 and 1.5)
+  const baseSpeed = Math.max(0.3, Math.min(1.5, 0.5 * speedMod));
+  const speedVariation = 0.5 * speedMod;
+
   valuesArray.forEach((value, index) => {
     balloons.push({
       id: Date.now() + index,
@@ -170,7 +281,7 @@ const generateBalloons = (
       x: Math.random() * containerWidth,
       y: -60 - Math.random() * 100,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      speed: 0.5 + Math.random() * 0.5,
+      speed: baseSpeed + Math.random() * speedVariation,
     });
   });
 
@@ -183,7 +294,7 @@ const generateBalloons = (
       x: Math.random() * containerWidth,
       y: -60 - Math.random() * 50,
       color: powerUpConfig.color,
-      speed: 0.4 + Math.random() * 0.3, // Slightly slower
+      speed: (0.4 + Math.random() * 0.3) * speedMod, // Slightly slower, also affected by modifier
       powerUp,
     });
   }
@@ -321,6 +432,12 @@ export default function MathPopGame() {
   const [isDoubleScore, setIsDoubleScore] = useState(false);
   const [activePowerUp, setActivePowerUp] = useState<{ type: PowerUpType; key: number } | null>(null);
 
+  // Dynamic difficulty states
+  const [dynamicLevel, setDynamicLevel] = useState(0); // -2 to +2
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
+  const [consecutiveWrong, setConsecutiveWrong] = useState(0);
+  const [speedModifier, setSpeedModifier] = useState(1); // Base speed multiplier
+
   const animationRef = useRef<number | null>(null);
   const freezeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const doubleScoreTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -437,10 +554,10 @@ export default function MathPopGame() {
 
   const nextProblem = useCallback(() => {
     const actualDifficulty = gameMode === 'stage' ? getStageDifficulty() : difficulty;
-    const newProblem = generateProblem(actualDifficulty);
+    const newProblem = generateProblem(actualDifficulty, dynamicLevel);
     setProblem(newProblem);
-    setBalloons(generateBalloons(newProblem.answer, 6, gameMode, hasLivesMode));
-  }, [difficulty, gameMode, getStageDifficulty, hasLivesMode]);
+    setBalloons(generateBalloons(newProblem.answer, 6, gameMode, hasLivesMode, speedModifier));
+  }, [difficulty, gameMode, getStageDifficulty, hasLivesMode, dynamicLevel, speedModifier]);
 
   const startGame = () => {
     playSound('click');
@@ -459,6 +576,12 @@ export default function MathPopGame() {
     setActivePowerUp(null);
     if (freezeTimerRef.current) clearTimeout(freezeTimerRef.current);
     if (doubleScoreTimerRef.current) clearTimeout(doubleScoreTimerRef.current);
+
+    // Reset dynamic difficulty states
+    setDynamicLevel(0);
+    setConsecutiveCorrect(0);
+    setConsecutiveWrong(0);
+    setSpeedModifier(1);
 
     // Mode-specific initialization
     switch (gameMode) {
@@ -629,6 +752,19 @@ export default function MathPopGame() {
       setCorrectCount((prev) => prev + 1);
       setFeedback({ type: 'correct', key: Date.now() });
 
+      // Dynamic difficulty: track consecutive correct
+      setConsecutiveWrong(0);
+      setConsecutiveCorrect((prev) => {
+        const newCount = prev + 1;
+        // Increase difficulty after 3 consecutive correct answers
+        if (newCount >= 3) {
+          setDynamicLevel((level) => Math.min(2, level + 1));
+          setSpeedModifier((speed) => Math.min(1.5, speed + 0.1));
+          return 0; // Reset counter
+        }
+        return newCount;
+      });
+
       // Correct sound
       playSound('correct');
 
@@ -660,6 +796,19 @@ export default function MathPopGame() {
 
       setTimeout(() => nextProblem(), 500);
     } else {
+      // Dynamic difficulty: track consecutive wrong
+      setConsecutiveCorrect(0);
+      setConsecutiveWrong((prev) => {
+        const newCount = prev + 1;
+        // Decrease difficulty after 2 consecutive wrong answers
+        if (newCount >= 2) {
+          setDynamicLevel((level) => Math.max(-2, level - 1));
+          setSpeedModifier((speed) => Math.max(0.7, speed - 0.1));
+          return 0; // Reset counter
+        }
+        return newCount;
+      });
+
       // Wrong answer handling based on game mode
       switch (gameMode) {
         case 'classic':
