@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import { GameHeader, Button, DifficultySelector } from '@/components/ui';
 import { Difficulty } from '@/types/game';
 import { useGameStore } from '@/stores/gameStore';
+import { useSound } from '@/hooks';
 
 interface Balloon {
   id: number;
@@ -210,6 +211,7 @@ const CloudSvg = ({ opacity }: { opacity: number }) => (
 export default function MathPopGame() {
   const router = useRouter();
   const { setResult } = useGameStore();
+  const { playSound } = useSound();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [score, setScore] = useState(0);
@@ -332,6 +334,7 @@ export default function MathPopGame() {
   }, [difficulty]);
 
   const startGame = () => {
+    playSound('click');
     setGameState('playing');
     setScore(0);
     setLives(3);
@@ -346,6 +349,7 @@ export default function MathPopGame() {
 
   const endGame = useCallback(() => {
     setGameState('ended');
+    playSound('gameOver');
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -364,10 +368,13 @@ export default function MathPopGame() {
     });
 
     router.push('/result');
-  }, [score, maxCombo, correctCount, wrongCount, setResult, router]);
+  }, [score, maxCombo, correctCount, wrongCount, setResult, router, playSound]);
 
   const handleBalloonTap = (balloon: Balloon) => {
     if (gameState !== 'playing' || !problem) return;
+
+    // Pop sound for any balloon tap
+    playSound('pop');
 
     if (balloon.value === problem.answer) {
       const comboBonus = combo >= 3 ? 5 : 0;
@@ -377,10 +384,17 @@ export default function MathPopGame() {
       setCombo((prev) => {
         const newCombo = prev + 1;
         setMaxCombo((max) => Math.max(max, newCombo));
+        // Play combo sound for 3+ combos
+        if (newCombo >= 3) {
+          playSound('combo', { comboLevel: newCombo });
+        }
         return newCombo;
       });
       setCorrectCount((prev) => prev + 1);
       setFeedback({ type: 'correct', key: Date.now() });
+
+      // Correct sound
+      playSound('correct');
 
       // Visual effects
       triggerConfetti(balloon.x, balloon.y, balloon.color);
@@ -394,6 +408,9 @@ export default function MathPopGame() {
       setWrongCount((prev) => prev + 1);
       setFeedback({ type: 'wrong', key: Date.now() });
       setBalloons((prev) => prev.filter((b) => b.id !== balloon.id));
+
+      // Wrong sound
+      playSound('wrong');
 
       // Shake effect
       triggerShake();
