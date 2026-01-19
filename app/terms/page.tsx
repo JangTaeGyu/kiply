@@ -129,7 +129,7 @@ export default function TermsPage() {
               본 약관에 관한 문의사항은 아래 연락처로 문의해 주세요.
             </p>
             <div className="mt-3 bg-primary/5 rounded-xl p-4">
-              <p className="text-foreground/70">이메일: support@kiply.com</p>
+              <p className="text-foreground/70">이메일: ttggbbgg2@gmail.com</p>
             </div>
           </section>
         </motion.div>

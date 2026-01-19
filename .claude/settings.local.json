@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=false --import-alias=\"@/*\" --use-npm --no-turbopack)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(yes:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_type",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Implement Phase 4 features - Leaderboard, Shape Match, Report, Profile\n\nPhase 4 완료:\n\n1. 리더보드 \\(Leaderboard\\)\n   - 게임별/기간별 필터링\n   - 1/2/3위 순위 배지\n   - 프로필 이름 연동\n\n2. 도형 맞추기 게임 \\(Shape Match\\)\n   - 5가지 도형: 원, 사각형, 삼각형, 별, 육각형\n   - 3단계 난이도: 기본/색상 추가/회전 추가\n   - 60초 15문제 챌린지\n\n3. 학부모 리포트 \\(Parent Report\\)\n   - 학부모 잠금 \\(수학 문제\\)\n   - 주간 활동 CSS 막대 차트\n   - 게임별 진행 상황 및 트렌드\n   - 자동 학습 인사이트 생성\n\n4. 사용자 프로필 \\(User Profile\\)\n   - 최대 4개 프로필 지원\n   - 20개 이모지 아바타 선택\n   - 프로필별 독립 통계/배지\n\n추가 사항:\n- PWA 아이콘 생성 \\(192x192, 512x512\\)\n- 새 게임 배지 3개 추가 \\(도형 박사, 두더지 헌터, 순서 마스터\\)\n- 플랜 문서 Phase 4 완료 업데이트\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "mcp__plugin_playwright_playwright__browser_press_key",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "Skill(frontend-design)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

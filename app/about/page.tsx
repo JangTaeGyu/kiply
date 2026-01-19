@@ -90,7 +90,7 @@ export default function AboutPage() {
           {/*    서비스 이용 중 궁금한 점이 있으시면 언제든지 문의해 주세요.*/}
           {/*  </p>*/}
           {/*  <p className="text-primary font-medium mt-2">*/}
-          {/*    support@kiply.com*/}
+          {/*    ttggbbgg2@gmail.com*/}
           {/*  </p>*/}
           {/*</section>*/}
         </motion.div>

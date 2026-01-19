@@ -89,7 +89,7 @@ export default function PrivacyPage() {
               개인정보 처리에 관한 문의사항이 있으시면 아래 연락처로 문의해 주세요.
             </p>
             <div className="mt-3 bg-primary/5 rounded-xl p-4">
-              <p className="text-foreground/70">이메일: privacy@kiply.com</p>
+              <p className="text-foreground/70">이메일: ttggbbgg2@gmail.com</p>
             </div>
           </section>
 
