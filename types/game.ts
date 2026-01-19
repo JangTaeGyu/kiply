@@ -13,6 +13,7 @@ export interface GameConfig {
   nameKo: string;
   description: string;
   icon: string;
+  iconImage: string;
   color: string;
   path: string;
 }
@@ -38,7 +39,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '숫자 팡팡',
     description: '풍선을 터뜨려 정답을 맞춰봐요!',
     icon: '🧮',
-    color: '#6C5CE7',
+    iconImage: '/images/games/math-pop.svg',
+    color: '#FF6B9D',
     path: '/games/math-pop',
   },
   {
@@ -47,7 +49,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '짝꿍 찾기',
     description: '같은 그림을 찾아봐요!',
     icon: '🃏',
-    color: '#00D2D3',
+    iconImage: '/images/games/memory-match.svg',
+    color: '#B088F9',
     path: '/games/memory-match',
   },
   {
@@ -56,7 +59,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '단어 퍼즐',
     description: '글자를 모아 단어를 완성해요!',
     icon: '🔤',
-    color: '#FF9F43',
+    iconImage: '/images/games/word-hunt.svg',
+    color: '#6BCB77',
     path: '/games/word-hunt',
   },
   {
@@ -65,7 +69,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '색깔 터치',
     description: '지시한 색깔을 빠르게 터치해요!',
     icon: '🎨',
-    color: '#10AC84',
+    iconImage: '/images/games/color-touch.svg',
+    color: '#00D4FF',
     path: '/games/color-touch',
   },
   {
@@ -74,7 +79,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '두더지 암산',
     description: '정답 두더지를 잡아요!',
     icon: '🐹',
-    color: '#D68910',
+    iconImage: '/images/games/mole-math.svg',
+    color: '#8B7355',
     path: '/games/mole-math',
   },
   {
@@ -83,7 +89,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '순서 맞추기',
     description: '패턴을 기억하고 따라해요!',
     icon: '🧩',
-    color: '#8E44AD',
+    iconImage: '/images/games/sequence.svg',
+    color: '#FFD93D',
     path: '/games/sequence',
   },
   {
@@ -92,7 +99,8 @@ export const GAMES: GameConfig[] = [
     nameKo: '도형 맞추기',
     description: '같은 도형을 찾아봐요!',
     icon: '🔷',
-    color: '#3498DB',
+    iconImage: '/images/games/shape-match.svg',
+    color: '#00D4FF',
     path: '/games/shape-match',
   },
 ];

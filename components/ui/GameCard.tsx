@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { GameConfig } from '@/types/game';
 
 interface GameCardProps {
@@ -59,13 +60,13 @@ export function GameCard({ game, index }: GameCardProps) {
             ✨
           </motion.div>
 
-          {/* Icon Container with animated background */}
+          {/* Icon Container with SVG image */}
           <motion.div
-            className="relative w-16 h-16 rounded-2xl flex items-center justify-center text-4xl
-                       shadow-inner"
+            className="relative w-16 h-16 rounded-2xl flex items-center justify-center
+                       shadow-inner overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, ${game.color}30 0%, ${game.color}15 100%)`,
-              border: `2px solid ${game.color}40`,
+              background: `linear-gradient(135deg, ${game.color}20 0%, ${game.color}10 100%)`,
+              border: `2px solid ${game.color}30`,
             }}
             whileHover={{ rotate: [0, -5, 5, 0] }}
             transition={{ duration: 0.3 }}
@@ -79,9 +80,13 @@ export function GameCard({ game, index }: GameCardProps) {
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
             />
-            <span className="relative z-10 drop-shadow-sm" aria-hidden="true">
-              {game.icon}
-            </span>
+            <Image
+              src={game.iconImage}
+              alt={game.nameKo}
+              width={48}
+              height={48}
+              className="relative z-10 drop-shadow-sm"
+            />
           </motion.div>
 
           {/* Content */}

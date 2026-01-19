@@ -2,17 +2,18 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { GameCard } from '@/components/ui';
 import { ProfileSwitcher } from '@/components/user';
 import { useUserStore } from '@/stores/userStore';
 import { GAMES } from '@/types/game';
 
-// Floating decoration component
-function FloatingDecoration({ emoji, className }: { emoji: string; className: string }) {
+// Floating SVG decoration component
+function FloatingDecoration({ src, className, size = 32 }: { src: string; className: string; size?: number }) {
   return (
     <motion.div
-      className={`absolute text-2xl pointer-events-none select-none ${className}`}
+      className={`absolute pointer-events-none select-none ${className}`}
       animate={{
         y: [0, -15, 0],
         rotate: [-5, 5, -5],
@@ -23,7 +24,7 @@ function FloatingDecoration({ emoji, className }: { emoji: string; className: st
         ease: "easeInOut",
       }}
     >
-      {emoji}
+      <Image src={src} alt="" width={size} height={size} />
     </motion.div>
   );
 }
@@ -86,12 +87,13 @@ export default function Home() {
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Hero Section with Candy Gradient */}
       <div className="relative bg-gradient-candy text-white px-6 pt-14 pb-20 rounded-b-[3rem] shadow-candy overflow-hidden">
-        {/* Floating Decorations */}
-        <FloatingDecoration emoji="⭐" className="top-8 left-8 opacity-80" />
-        <FloatingDecoration emoji="✨" className="top-16 right-12 opacity-70" />
-        <FloatingDecoration emoji="🌈" className="top-24 left-1/4 opacity-60 text-xl" />
-        <FloatingDecoration emoji="💫" className="bottom-24 right-8 opacity-70" />
-        <FloatingDecoration emoji="🎈" className="bottom-16 left-12 opacity-60" />
+        {/* Floating SVG Decorations */}
+        <FloatingDecoration src="/images/decorations/star.svg" className="top-8 left-8 opacity-90" size={36} />
+        <FloatingDecoration src="/images/decorations/sparkle.svg" className="top-16 right-12 opacity-80" size={28} />
+        <FloatingDecoration src="/images/decorations/rainbow.svg" className="top-24 left-1/4 opacity-70" size={48} />
+        <FloatingDecoration src="/images/decorations/heart.svg" className="bottom-24 right-8 opacity-80" size={32} />
+        <FloatingDecoration src="/images/decorations/balloon.svg" className="bottom-16 left-12 opacity-70" size={40} />
+        <FloatingDecoration src="/images/decorations/cloud.svg" className="top-12 right-1/3 opacity-60" size={50} />
 
         {/* Bubble decorations */}
         <div className="absolute top-10 right-6 w-20 h-20 rounded-full bg-white/10 blur-xl" />
@@ -122,7 +124,7 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="text-center relative z-10"
         >
-          {/* Avatar with bounce animation */}
+          {/* Avatar/Mascot with bounce animation */}
           <motion.div
             animate={{
               y: [0, -10, 0],
@@ -133,12 +135,20 @@ export default function Home() {
               duration: 2,
               ease: "easeInOut"
             }}
-            className="text-6xl mb-4 drop-shadow-lg"
+            className="mb-4 drop-shadow-lg flex justify-center"
             suppressHydrationWarning
           >
-            <span className="inline-block">
-              {currentProfile ? currentProfile.avatar : '🎮'}
-            </span>
+            {currentProfile ? (
+              <span className="text-6xl inline-block">{currentProfile.avatar}</span>
+            ) : (
+              <Image
+                src="/images/mascot.svg"
+                alt="Kiply 마스코트"
+                width={80}
+                height={80}
+                className="drop-shadow-lg"
+              />
+            )}
           </motion.div>
 
           {/* Greeting with sparkle effect */}
@@ -201,13 +211,17 @@ export default function Home() {
         >
           {/* Section Header with decoration */}
           <div className="flex items-center gap-3 mb-5 px-1">
-            <motion.span
-              className="text-3xl"
+            <motion.div
               animate={{ rotate: [0, -10, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              🎮
-            </motion.span>
+              <Image
+                src="/images/mascot.svg"
+                alt=""
+                width={40}
+                height={40}
+              />
+            </motion.div>
             <div>
               <h2 className="text-xl font-bold text-foreground">
                 게임 선택
@@ -215,11 +229,16 @@ export default function Home() {
               <p className="text-sm text-text-secondary">어떤 게임을 해볼까요?</p>
             </div>
             <motion.div
-              className="ml-auto text-2xl"
+              className="ml-auto"
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              ✨
+              <Image
+                src="/images/decorations/sparkle.svg"
+                alt=""
+                width={28}
+                height={28}
+              />
             </motion.div>
           </div>
 

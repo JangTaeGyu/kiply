@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Kiply Mascot - Cute Star Character -->
+  <defs>
+    <!-- Gradient for body -->
+    <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD93D"/>
+      <stop offset="100%" style="stop-color:#FF9F1C"/>
+    </linearGradient>
+    <!-- Gradient for cheeks -->
+    <radialGradient id="cheekGradient">
+      <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:0"/>
+    </radialGradient>
+    <!-- Sparkle gradient -->
+    <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#FFE66D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Star Body -->
+  <path d="M100 20 L118 70 L172 70 L128 105 L145 158 L100 128 L55 158 L72 105 L28 70 L82 70 Z"
+        fill="url(#bodyGradient)"
+        stroke="#FF9F1C"
+        stroke-width="3"/>
+
+  <!-- Face Background Circle -->
+  <circle cx="100" cy="95" r="35" fill="#FFF5D6"/>
+
+  <!-- Left Eye -->
+  <ellipse cx="85" cy="90" rx="10" ry="12" fill="#2D3436"/>
+  <ellipse cx="87" cy="87" rx="4" ry="5" fill="#FFFFFF"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="115" cy="90" rx="10" ry="12" fill="#2D3436"/>
+  <ellipse cx="117" cy="87" rx="4" ry="5" fill="#FFFFFF"/>
+
+  <!-- Happy Mouth -->
+  <path d="M85 108 Q100 125 115 108" fill="none" stroke="#2D3436" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Left Cheek -->
+  <ellipse cx="70" cy="105" rx="12" ry="8" fill="url(#cheekGradient)"/>
+
+  <!-- Right Cheek -->
+  <ellipse cx="130" cy="105" rx="12" ry="8" fill="url(#cheekGradient)"/>
+
+  <!-- Sparkles around -->
+  <g fill="url(#sparkleGradient)">
+    <polygon points="30,30 33,38 42,38 35,43 38,52 30,47 22,52 25,43 18,38 27,38" transform="scale(0.6)"/>
+    <polygon points="280,50 283,58 292,58 285,63 288,72 280,67 272,72 275,63 268,58 277,58" transform="scale(0.6)"/>
+    <polygon points="50,250 53,258 62,258 55,263 58,272 50,267 42,272 45,263 38,258 47,258" transform="scale(0.6)"/>
+  </g>
+
+  <!-- Crown/Hat -->
+  <path d="M70 45 L85 25 L100 40 L115 25 L130 45"
+        fill="none"
+        stroke="#FF6B9D"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Word Hunt - Letters -->
+  <defs>
+    <linearGradient id="letter1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6BCB77"/>
+      <stop offset="100%" style="stop-color:#4CAF50"/>
+    </linearGradient>
+    <linearGradient id="letter2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D4FF"/>
+      <stop offset="100%" style="stop-color:#00A8CC"/>
+    </linearGradient>
+    <linearGradient id="letter3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD93D"/>
+      <stop offset="100%" style="stop-color:#F4C430"/>
+    </linearGradient>
+    <linearGradient id="letter4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B9D"/>
+      <stop offset="100%" style="stop-color:#E84A7F"/>
+    </linearGradient>
+    <filter id="letterShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="2" stdDeviation="1" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Letter blocks -->
+  <rect x="10" y="20" width="28" height="28" rx="6" fill="url(#letter1)" filter="url(#letterShadow)"/>
+  <text x="24" y="42" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Arial">ㄱ</text>
+
+  <rect x="42" y="15" width="28" height="28" rx="6" fill="url(#letter2)" filter="url(#letterShadow)"/>
+  <text x="56" y="37" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Arial">ㅏ</text>
+
+  <rect x="62" y="35" width="28" height="28" rx="6" fill="url(#letter3)" filter="url(#letterShadow)"/>
+  <text x="76" y="57" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Arial">ㅁ</text>
+
+  <rect x="25" y="55" width="28" height="28" rx="6" fill="url(#letter4)" filter="url(#letterShadow)"/>
+  <text x="39" y="77" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Arial">ㅣ</text>
+
+  <!-- Magnifying glass -->
+  <circle cx="78" cy="78" r="12" fill="none" stroke="#B088F9" stroke-width="4"/>
+  <line x1="87" y1="87" x2="95" y2="95" stroke="#B088F9" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="78" cy="78" r="8" fill="rgba(176,136,249,0.2)"/>
+
+  <!-- Sparkles -->
+  <circle cx="8" cy="10" r="3" fill="#FFD93D"/>
+  <circle cx="92" cy="15" r="2" fill="#FF6B9D"/>
+</svg>

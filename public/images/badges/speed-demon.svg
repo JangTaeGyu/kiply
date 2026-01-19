@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="speedBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D4FF"/>
+      <stop offset="100%" style="stop-color:#0099CC"/>
+    </linearGradient>
+    <linearGradient id="lightning" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700"/>
+      <stop offset="100%" style="stop-color:#FF8C00"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background hexagon -->
+  <polygon points="40,5 70,20 70,55 40,75 10,55 10,20"
+           fill="url(#speedBlue)" stroke="#0077AA" stroke-width="2"/>
+  <polygon points="40,12 62,24 62,52 40,68 18,52 18,24"
+           fill="#E8F9FF"/>
+
+  <!-- Lightning bolt -->
+  <path d="M45 15 L30 40 L40 40 L35 65 L55 35 L45 35 Z"
+        fill="url(#lightning)" stroke="#CC7000" stroke-width="1"/>
+
+  <!-- Speed lines -->
+  <line x1="15" y1="30" x2="25" y2="30" stroke="#00D4FF" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="40" x2="22" y2="40" stroke="#00D4FF" stroke-width="2" stroke-linecap="round"/>
+  <line x1="15" y1="50" x2="25" y2="50" stroke="#00D4FF" stroke-width="2" stroke-linecap="round"/>
+</svg>
