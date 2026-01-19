@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Gowun_Dodum } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "./components/PWARegister";
+import { AccessibilityProvider } from "./components/AccessibilityProvider";
 
 const gowunDodum = Gowun_Dodum({
   weight: "400",
@@ -37,9 +38,14 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${gowunDodum.variable} antialiased`}>
         <PWARegister />
-        <main className="min-h-dvh flex flex-col">
-          {children}
-        </main>
+        <AccessibilityProvider>
+          <a href="#main-content" className="skip-link">
+            메인 콘텐츠로 이동
+          </a>
+          <main id="main-content" className="min-h-dvh flex flex-col" role="main">
+            {children}
+          </main>
+        </AccessibilityProvider>
       </body>
     </html>
   );

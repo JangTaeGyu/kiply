@@ -50,32 +50,41 @@ export default function Home() {
         </motion.div>
 
         {/* Quick Actions */}
-        <div className="flex justify-center gap-4 mt-6">
-          <Link href="/leaderboard">
+        <div className="flex justify-center gap-3 mt-6">
+          <Link href="/leaderboard" aria-label="리더보드 보기">
             <motion.div
               whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center gap-1 px-4 py-2 bg-white/20 rounded-2xl"
+              className="flex flex-col items-center gap-1 px-4 py-3 bg-white/20 rounded-2xl touch-target"
             >
-              <span className="text-2xl">🏆</span>
+              <span className="text-2xl" aria-hidden="true">🏆</span>
               <span className="text-xs">리더보드</span>
             </motion.div>
           </Link>
-          <Link href="/report">
+          <Link href="/report" aria-label="리포트 보기">
             <motion.div
               whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center gap-1 px-4 py-2 bg-white/20 rounded-2xl"
+              className="flex flex-col items-center gap-1 px-4 py-3 bg-white/20 rounded-2xl touch-target"
             >
-              <span className="text-2xl">📊</span>
+              <span className="text-2xl" aria-hidden="true">📊</span>
               <span className="text-xs">리포트</span>
             </motion.div>
           </Link>
-          <Link href="/profile">
+          <Link href="/profile" aria-label="프로필 관리">
             <motion.div
               whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center gap-1 px-4 py-2 bg-white/20 rounded-2xl"
+              className="flex flex-col items-center gap-1 px-4 py-3 bg-white/20 rounded-2xl touch-target"
             >
-              <span className="text-2xl">👤</span>
+              <span className="text-2xl" aria-hidden="true">👤</span>
               <span className="text-xs">프로필</span>
+            </motion.div>
+          </Link>
+          <Link href="/settings" aria-label="접근성 설정">
+            <motion.div
+              whileTap={{ scale: 0.95 }}
+              className="flex flex-col items-center gap-1 px-4 py-3 bg-white/20 rounded-2xl touch-target"
+            >
+              <span className="text-2xl" aria-hidden="true">⚙️</span>
+              <span className="text-xs">설정</span>
             </motion.div>
           </Link>
         </div>

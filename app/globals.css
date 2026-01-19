@@ -8,6 +8,53 @@
   --accent: #FF9F43;
   --success: #10AC84;
   --error: #EE5A5A;
+
+  /* Accessible text colors (WCAG AA compliant) */
+  --text-secondary: #5A6368;
+  --text-muted: #6B7680;
+
+  /* High contrast mode colors */
+  --hc-primary: #5B4AD1;
+  --hc-secondary: #007A7A;
+  --hc-accent: #C77A00;
+  --hc-success: #0D8A6A;
+  --hc-error: #C93C3C;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --primary: var(--hc-primary);
+  --secondary: var(--hc-secondary);
+  --accent: var(--hc-accent);
+  --success: var(--hc-success);
+  --error: var(--hc-error);
+}
+
+/* Large text mode */
+.large-text {
+  font-size: 110%;
+}
+
+.large-text h1 { font-size: 2rem !important; }
+.large-text h2 { font-size: 1.5rem !important; }
+.large-text h3 { font-size: 1.25rem !important; }
+.large-text p, .large-text span { font-size: 1.1rem !important; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 @theme inline {
@@ -18,6 +65,8 @@
   --color-accent: var(--accent);
   --color-success: var(--success);
   --color-error: var(--error);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
   --font-sans: var(--font-gowun-dodum);
 }
 
@@ -76,4 +125,84 @@ body {
 
 .animate-float {
   animation: float 2s ease-in-out infinite;
+}
+
+/* ===== Accessibility Improvements ===== */
+
+/* Touch target sizes - WCAG 2.1 Level AAA recommends 44x44px minimum */
+.touch-target-lg {
+  min-width: 64px;
+  min-height: 64px;
+}
+
+/* Focus styles for keyboard navigation */
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Skip to main content link (screen readers) */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 0 0 8px 8px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Accessible text colors - better contrast */
+.text-accessible-secondary {
+  color: var(--text-secondary);
+}
+
+.text-accessible-muted {
+  color: var(--text-muted);
+}
+
+/* Ensure minimum contrast for overlays */
+.accessible-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) {
+  .touch-feedback:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease-out;
+  }
+}
+
+/* Focus within for game cards */
+.focus-within-highlight:focus-within {
+  box-shadow: 0 0 0 3px var(--primary);
 }

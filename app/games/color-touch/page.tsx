@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { GameHeader, Button } from '@/components/ui';
 import { useGameStore } from '@/stores/gameStore';
+import { useGameFeedback } from '@/hooks';
 
 type GameMode = 'normal' | 'reverse' | 'english';
 
@@ -67,6 +68,7 @@ const generateCircles = (count: number = 6): ColorCircle[] => {
 export default function ColorTouchGame() {
   const router = useRouter();
   const { setResult } = useGameStore();
+  const { feedbackCorrect, feedbackWrong, feedbackGameStart, feedbackInstruction } = useGameFeedback();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [mode, setMode] = useState<GameMode>('normal');
   const [score, setScore] = useState(0);
@@ -111,6 +113,7 @@ export default function ColorTouchGame() {
     setCorrectCount(0);
     setWrongCount(0);
     startTimeRef.current = Date.now();
+    feedbackGameStart();
     nextRound();
   };
 
@@ -133,6 +136,18 @@ export default function ColorTouchGame() {
 
     router.push('/result');
   }, [score, maxCombo, correctCount, wrongCount, setResult, router]);
+
+  // Speak instruction when target color changes
+  useEffect(() => {
+    if (gameState === 'playing' && targetColor) {
+      const instruction = mode === 'normal'
+        ? `${targetColor.nameKo}을 터치하세요`
+        : mode === 'reverse'
+          ? `${targetColor.nameKo} 말고 다른 색`
+          : `Touch ${targetColor.name}`;
+      feedbackInstruction(instruction);
+    }
+  }, [targetColor, gameState, mode, feedbackInstruction]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -175,11 +190,13 @@ export default function ColorTouchGame() {
       });
       setCorrectCount((prev) => prev + 1);
       setFeedback({ type: 'correct', key: Date.now() });
+      feedbackCorrect();
       nextRound();
     } else {
       setCombo(0);
       setWrongCount((prev) => prev + 1);
       setFeedback({ type: 'wrong', key: Date.now() });
+      feedbackWrong();
       setCircles((prev) => prev.filter((c) => c.id !== circle.id));
     }
 
@@ -272,7 +289,11 @@ export default function ColorTouchGame() {
       </motion.div>
 
       {/* Game Area */}
-      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-background to-primary/5">
+      <div
+        className="flex-1 relative overflow-hidden bg-gradient-to-b from-background to-primary/5"
+        role="application"
+        aria-label="색깔 터치 게임 영역"
+      >
         <AnimatePresence>
           {circles.map((circle) => (
             <motion.button
@@ -282,12 +303,13 @@ export default function ColorTouchGame() {
               exit={{ scale: 0, opacity: 0 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => handleCircleClick(circle)}
-              className="absolute rounded-full shadow-lg touch-target"
+              className="absolute rounded-full shadow-lg touch-target-lg"
+              aria-label={`${circle.color.nameKo} 색깔`}
               style={{
                 left: `${circle.x}%`,
                 top: `${circle.y}%`,
-                width: circle.size,
-                height: circle.size,
+                width: Math.max(circle.size, 64),
+                height: Math.max(circle.size, 64),
                 backgroundColor: circle.color.hex,
                 transform: 'translate(-50%, -50%)',
               }}
