@@ -8,7 +8,13 @@ import confetti from 'canvas-confetti';
 import { GameHeader, Button, DifficultySelector, ModeSelector } from '@/components/ui';
 import { Difficulty, GameMode, GAME_MODES } from '@/types/game';
 import { useGameStore } from '@/stores/gameStore';
+import { useAccessibilityStore } from '@/stores/accessibilityStore';
 import { useSound } from '@/hooks';
+import {
+  getBalloonColors,
+  BALLOON_SIZE_CONFIG,
+  BALLOON_SPEED_CONFIG,
+} from '@/types/accessibility';
 
 // Power-up types
 type PowerUpType = 'freeze' | 'bomb' | 'heart' | 'double' | null;
@@ -78,7 +84,8 @@ interface Cloud {
   opacity: number;
 }
 
-const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+// Default colors - will be overridden by accessibility settings
+const DEFAULT_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
 
 // Convert hex color to RGB for confetti
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -250,7 +257,8 @@ const generateBalloons = (
   count: number = 6,
   gameMode: GameMode = 'classic',
   hasLives: boolean = true,
-  speedMod: number = 1
+  speedMod: number = 1,
+  colors: string[] = DEFAULT_COLORS
 ): Balloon[] => {
   const balloons: Balloon[] = [];
   const values = new Set<number>();
@@ -280,7 +288,7 @@ const generateBalloons = (
       value,
       x: Math.random() * containerWidth,
       y: -60 - Math.random() * 100,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      color: colors[Math.floor(Math.random() * colors.length)],
       speed: baseSpeed + Math.random() * speedVariation,
     });
   });
@@ -402,7 +410,13 @@ const CloudSvg = ({ opacity }: { opacity: number }) => (
 export default function MathPopGame() {
   const router = useRouter();
   const { setResult } = useGameStore();
+  const { settings: accessibilitySettings } = useAccessibilityStore();
   const { playSound } = useSound();
+
+  // Accessibility settings
+  const balloonColors = getBalloonColors(accessibilitySettings.colorMode);
+  const balloonSizeConfig = BALLOON_SIZE_CONFIG[accessibilitySettings.balloonSize];
+  const accessibilitySpeedMultiplier = BALLOON_SPEED_CONFIG[accessibilitySettings.balloonSpeed];
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [gameMode, setGameMode] = useState<GameMode>('classic');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -451,6 +465,30 @@ export default function MathPopGame() {
   useEffect(() => {
     setClouds(generateClouds());
   }, []);
+
+  // Keyboard controls support
+  useEffect(() => {
+    if (!accessibilitySettings.keyboardEnabled || gameState !== 'playing') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Number keys 1-6 to select balloons
+      const key = e.key;
+      const keyNum = parseInt(key, 10);
+
+      if (keyNum >= 1 && keyNum <= 6) {
+        // Sort balloons by x position (left to right) and select by index
+        const sortedBalloons = [...balloons].sort((a, b) => a.x - b.x);
+        const targetBalloon = sortedBalloons[keyNum - 1];
+
+        if (targetBalloon) {
+          handleBalloonTap(targetBalloon);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [accessibilitySettings.keyboardEnabled, gameState, balloons]);
 
   // Cloud animation
   useEffect(() => {
@@ -556,8 +594,10 @@ export default function MathPopGame() {
     const actualDifficulty = gameMode === 'stage' ? getStageDifficulty() : difficulty;
     const newProblem = generateProblem(actualDifficulty, dynamicLevel);
     setProblem(newProblem);
-    setBalloons(generateBalloons(newProblem.answer, 6, gameMode, hasLivesMode, speedModifier));
-  }, [difficulty, gameMode, getStageDifficulty, hasLivesMode, dynamicLevel, speedModifier]);
+    // Apply both dynamic speed modifier and accessibility speed setting
+    const combinedSpeedModifier = speedModifier * accessibilitySpeedMultiplier;
+    setBalloons(generateBalloons(newProblem.answer, 6, gameMode, hasLivesMode, combinedSpeedModifier, balloonColors));
+  }, [difficulty, gameMode, getStageDifficulty, hasLivesMode, dynamicLevel, speedModifier, accessibilitySpeedMultiplier, balloonColors]);
 
   const startGame = () => {
     playSound('click');
@@ -1051,6 +1091,18 @@ export default function MathPopGame() {
             const isPowerUp = balloon.powerUp != null;
             const powerUpConfig = isPowerUp ? POWER_UPS[balloon.powerUp!] : null;
 
+            // Apply accessibility size settings
+            const width = balloonSizeConfig.width;
+            const height = balloonSizeConfig.height;
+            const fontSize = balloonSizeConfig.fontSize;
+
+            // Extra touch padding for enlarged touch area
+            const touchPadding = accessibilitySettings.enlargedTouchArea ? 16 : 0;
+
+            // Sort balloons by x position for keyboard indicator
+            const sortedBalloons = [...balloons].sort((a, b) => a.x - b.x);
+            const keyboardIndex = sortedBalloons.findIndex((b) => b.id === balloon.id) + 1;
+
             return (
               <motion.button
                 key={balloon.id}
@@ -1076,16 +1128,20 @@ export default function MathPopGame() {
                 }}
                 whileTap={{ scale: 0.8 }}
                 onClick={() => handleBalloonTap(balloon)}
-                className={`absolute w-16 h-20 flex items-center justify-center cursor-pointer touch-target z-10 ${
+                className={`absolute flex items-center justify-center cursor-pointer touch-target z-10 ${
                   isPowerUp ? 'z-20' : ''
                 }`}
                 style={{
                   left: balloon.x,
                   top: balloon.y,
+                  width: width + touchPadding * 2,
+                  height: height + touchPadding * 2,
+                  padding: touchPadding,
                   filter: isPowerUp ? `drop-shadow(0 0 10px ${powerUpConfig?.glowColor})` : undefined,
                 }}
+                aria-label={isPowerUp ? `파워업: ${powerUpConfig?.label}` : `답: ${balloon.value}`}
               >
-                <svg viewBox="0 0 60 75" className="w-full h-full drop-shadow-lg">
+                <svg viewBox="0 0 60 75" style={{ width, height }} className="drop-shadow-lg">
                   <defs>
                     <radialGradient id={`balloon-${balloon.id}`} cx="30%" cy="30%" r="70%">
                       <stop offset="0%" stopColor="white" stopOpacity={isPowerUp ? '0.6' : '0.4'} />
@@ -1097,9 +1153,19 @@ export default function MathPopGame() {
                   <polygon points="30,56 26,62 34,62" fill={balloon.color} />
                   <path d="M30,62 Q32,68 30,75" stroke="#888" strokeWidth="1.5" fill="none" />
                 </svg>
-                <span className="absolute top-3 text-xl font-bold text-white drop-shadow-md">
+                <span className={`absolute top-3 font-bold text-white drop-shadow-md ${fontSize}`}>
                   {isPowerUp ? powerUpConfig?.icon : balloon.value}
                 </span>
+
+                {/* Keyboard indicator */}
+                {accessibilitySettings.keyboardEnabled && keyboardIndex <= 6 && (
+                  <span
+                    className="absolute -bottom-1 -right-1 w-5 h-5 bg-black/60 text-white text-xs
+                              font-bold rounded-full flex items-center justify-center"
+                  >
+                    {keyboardIndex}
+                  </span>
+                )}
               </motion.button>
             );
           })}

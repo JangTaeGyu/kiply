@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from '@/types/accessibility';
+import {
+  AccessibilitySettings,
+  DEFAULT_ACCESSIBILITY_SETTINGS,
+  BalloonSize,
+  BalloonSpeed,
+  ColorMode,
+} from '@/types/accessibility';
 
 interface AccessibilityState {
   settings: AccessibilitySettings;
@@ -11,6 +17,11 @@ interface AccessibilityState {
   toggleHighContrast: () => void;
   toggleLargeText: () => void;
   toggleReducedMotion: () => void;
+  toggleEnlargedTouchArea: () => void;
+  toggleKeyboardEnabled: () => void;
+  setColorMode: (mode: ColorMode) => void;
+  setBalloonSize: (size: BalloonSize) => void;
+  setBalloonSpeed: (speed: BalloonSpeed) => void;
   resetSettings: () => void;
 }
 
@@ -51,6 +62,36 @@ export const useAccessibilityStore = create<AccessibilityState>()(
       toggleReducedMotion: () => {
         set((state) => ({
           settings: { ...state.settings, reducedMotion: !state.settings.reducedMotion },
+        }));
+      },
+
+      toggleEnlargedTouchArea: () => {
+        set((state) => ({
+          settings: { ...state.settings, enlargedTouchArea: !state.settings.enlargedTouchArea },
+        }));
+      },
+
+      toggleKeyboardEnabled: () => {
+        set((state) => ({
+          settings: { ...state.settings, keyboardEnabled: !state.settings.keyboardEnabled },
+        }));
+      },
+
+      setColorMode: (mode) => {
+        set((state) => ({
+          settings: { ...state.settings, colorMode: mode },
+        }));
+      },
+
+      setBalloonSize: (size) => {
+        set((state) => ({
+          settings: { ...state.settings, balloonSize: size },
+        }));
+      },
+
+      setBalloonSpeed: (speed) => {
+        set((state) => ({
+          settings: { ...state.settings, balloonSpeed: speed },
         }));
       },
 

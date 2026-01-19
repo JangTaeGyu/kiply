@@ -7,6 +7,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { AccessibilityToggle } from '@/components/accessibility';
 import { Button } from '@/components/ui';
 import { useSound } from '@/hooks';
+import { ColorMode, BalloonSize, BalloonSpeed } from '@/types/accessibility';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -18,6 +19,11 @@ export default function SettingsPage() {
     toggleHighContrast,
     toggleLargeText,
     toggleReducedMotion,
+    toggleEnlargedTouchArea,
+    toggleKeyboardEnabled,
+    setColorMode,
+    setBalloonSize,
+    setBalloonSpeed,
   } = useAccessibilityStore();
 
   const {
@@ -159,6 +165,142 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
+        {/* Game Accessibility Settings Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-6"
+        >
+          <h2 className="text-sm font-bold text-foreground/60 uppercase tracking-wide mb-3 px-1">
+            🎮 게임 접근성 설정
+          </h2>
+          <div className="space-y-3">
+            {/* Color Mode Selector */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">🎨</span>
+                <div>
+                  <h3 className="font-bold text-foreground">색상 모드</h3>
+                  <p className="text-sm text-foreground/60">색각 특성에 맞게 색상을 조정해요</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'default' as ColorMode, label: '기본', icon: '🌈' },
+                  { value: 'colorblind' as ColorMode, label: '색맹 친화', icon: '👁️' },
+                  { value: 'highContrast' as ColorMode, label: '고대비', icon: '⚫' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setColorMode(option.value);
+                      playSound('click');
+                    }}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      settings.colorMode === option.value
+                        ? 'border-primary bg-primary/10'
+                        : 'border-transparent bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{option.icon}</div>
+                    <div className="text-xs font-medium">{option.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Balloon Size Selector */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">🎈</span>
+                <div>
+                  <h3 className="font-bold text-foreground">풍선 크기</h3>
+                  <p className="text-sm text-foreground/60">풍선을 더 크게 또는 작게 해요</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'small' as BalloonSize, label: '작게', icon: '🎈' },
+                  { value: 'medium' as BalloonSize, label: '보통', icon: '🎈🎈' },
+                  { value: 'large' as BalloonSize, label: '크게', icon: '🎈🎈🎈' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setBalloonSize(option.value);
+                      playSound('click');
+                    }}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      settings.balloonSize === option.value
+                        ? 'border-primary bg-primary/10'
+                        : 'border-transparent bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className={`mb-1 ${
+                      option.value === 'small' ? 'text-lg' :
+                      option.value === 'medium' ? 'text-xl' : 'text-2xl'
+                    }`}>{option.icon}</div>
+                    <div className="text-xs font-medium">{option.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Balloon Speed Selector */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">💨</span>
+                <div>
+                  <h3 className="font-bold text-foreground">풍선 속도</h3>
+                  <p className="text-sm text-foreground/60">풍선이 떠오르는 속도를 조절해요</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'slow' as BalloonSpeed, label: '느리게', icon: '🐢' },
+                  { value: 'normal' as BalloonSpeed, label: '보통', icon: '🐇' },
+                  { value: 'fast' as BalloonSpeed, label: '빠르게', icon: '🚀' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setBalloonSpeed(option.value);
+                      playSound('click');
+                    }}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      settings.balloonSpeed === option.value
+                        ? 'border-primary bg-primary/10'
+                        : 'border-transparent bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{option.icon}</div>
+                    <div className="text-xs font-medium">{option.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Touch Area Toggle */}
+            <AccessibilityToggle
+              icon="👆"
+              label="터치 영역 확대"
+              description="풍선 터치 영역을 더 크게 해요"
+              enabled={settings.enlargedTouchArea}
+              onToggle={toggleEnlargedTouchArea}
+            />
+
+            {/* Keyboard Controls Toggle */}
+            <AccessibilityToggle
+              icon="⌨️"
+              label="키보드 조작"
+              description="숫자 키로 풍선을 선택할 수 있어요"
+              enabled={settings.keyboardEnabled}
+              onToggle={toggleKeyboardEnabled}
+            />
+          </div>
+        </motion.div>
+
         {/* Info Section */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -170,8 +312,10 @@ export default function SettingsPage() {
           <ul className="text-sm text-text-secondary space-y-2">
             <li>• <strong>효과음</strong>: 풍선 터뜨리기, 정답/오답 소리를 들을 수 있어요</li>
             <li>• <strong>음성 안내</strong>: 정답/오답 시 음성 피드백을 들을 수 있어요</li>
-            <li>• <strong>고대비 모드</strong>: 색약이 있어도 잘 보이도록 색상을 조정해요</li>
-            <li>• <strong>큰 글씨</strong>: 모든 글씨가 10% 더 커져요</li>
+            <li>• <strong>색상 모드</strong>: 색각 특성에 맞게 풍선 색상을 변경해요</li>
+            <li>• <strong>풍선 크기</strong>: 풍선을 더 크게 또는 작게 조절해요</li>
+            <li>• <strong>풍선 속도</strong>: 풍선이 올라오는 속도를 조절해요</li>
+            <li>• <strong>키보드 조작</strong>: 1~5 숫자키로 풍선을 선택할 수 있어요</li>
           </ul>
         </motion.div>
 

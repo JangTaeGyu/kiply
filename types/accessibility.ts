@@ -1,10 +1,20 @@
 // Accessibility settings types
 
+export type BalloonSize = 'small' | 'medium' | 'large';
+export type BalloonSpeed = 'slow' | 'normal' | 'fast';
+export type ColorMode = 'default' | 'colorblind' | 'highContrast';
+
 export interface AccessibilitySettings {
   voiceEnabled: boolean;
   highContrast: boolean;
   largeText: boolean;
   reducedMotion: boolean;
+  // Game-specific accessibility
+  colorMode: ColorMode;
+  balloonSize: BalloonSize;
+  balloonSpeed: BalloonSpeed;
+  enlargedTouchArea: boolean;
+  keyboardEnabled: boolean;
 }
 
 export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
@@ -12,6 +22,26 @@ export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
   highContrast: false,
   largeText: false,
   reducedMotion: false,
+  // Game-specific defaults
+  colorMode: 'default',
+  balloonSize: 'medium',
+  balloonSpeed: 'normal',
+  enlargedTouchArea: false,
+  keyboardEnabled: false,
+};
+
+// Balloon size configurations
+export const BALLOON_SIZE_CONFIG: Record<BalloonSize, { width: number; height: number; fontSize: string }> = {
+  small: { width: 56, height: 70, fontSize: 'text-lg' },
+  medium: { width: 64, height: 80, fontSize: 'text-xl' },
+  large: { width: 80, height: 100, fontSize: 'text-2xl' },
+};
+
+// Balloon speed configurations (multiplier)
+export const BALLOON_SPEED_CONFIG: Record<BalloonSpeed, number> = {
+  slow: 0.6,
+  normal: 1.0,
+  fast: 1.4,
 };
 
 // WCAG 2.1 AA compliant color palette
@@ -32,6 +62,53 @@ export const ACCESSIBLE_COLORS = {
   // Background
   background: '#F8F9FA',
   surface: '#FFFFFF',
+};
+
+// Balloon colors for different color modes
+// Default: Bright, colorful palette
+export const BALLOON_COLORS_DEFAULT = [
+  '#FF6B6B', // Red
+  '#4ECDC4', // Teal
+  '#45B7D1', // Blue
+  '#96CEB4', // Green
+  '#FFEAA7', // Yellow
+  '#DDA0DD', // Purple
+  '#98D8C8', // Mint
+];
+
+// Colorblind-friendly palette (optimized for deuteranopia and protanopia)
+// Uses blue-orange color scheme which is distinguishable by most color blind people
+export const BALLOON_COLORS_COLORBLIND = [
+  '#0077BB', // Blue
+  '#EE7733', // Orange
+  '#009988', // Teal
+  '#CC3311', // Vermillion
+  '#33BBEE', // Cyan
+  '#EE3377', // Magenta
+  '#BBBBBB', // Gray
+];
+
+// High contrast palette (for low vision users)
+export const BALLOON_COLORS_HIGH_CONTRAST = [
+  '#FF0000', // Pure Red
+  '#0000FF', // Pure Blue
+  '#00AA00', // Green
+  '#FF00FF', // Magenta
+  '#00FFFF', // Cyan
+  '#FFFF00', // Yellow
+  '#FF8800', // Orange
+];
+
+// Get balloon colors based on color mode
+export const getBalloonColors = (colorMode: ColorMode): string[] => {
+  switch (colorMode) {
+    case 'colorblind':
+      return BALLOON_COLORS_COLORBLIND;
+    case 'highContrast':
+      return BALLOON_COLORS_HIGH_CONTRAST;
+    default:
+      return BALLOON_COLORS_DEFAULT;
+  }
 };
 
 // Voice feedback messages
