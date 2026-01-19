@@ -10,6 +10,43 @@ import { Difficulty, GameMode, GAME_MODES } from '@/types/game';
 import { useGameStore } from '@/stores/gameStore';
 import { useSound } from '@/hooks';
 
+// Power-up types
+type PowerUpType = 'freeze' | 'bomb' | 'heart' | 'double' | null;
+
+interface PowerUpConfig {
+  icon: string;
+  color: string;
+  glowColor: string;
+  label: string;
+}
+
+const POWER_UPS: Record<Exclude<PowerUpType, null>, PowerUpConfig> = {
+  freeze: {
+    icon: '❄️',
+    color: '#00BFFF',
+    glowColor: 'rgba(0, 191, 255, 0.5)',
+    label: '시간 정지',
+  },
+  bomb: {
+    icon: '💣',
+    color: '#FF4500',
+    glowColor: 'rgba(255, 69, 0, 0.5)',
+    label: '폭탄',
+  },
+  heart: {
+    icon: '💖',
+    color: '#FF69B4',
+    glowColor: 'rgba(255, 105, 180, 0.5)',
+    label: '라이프',
+  },
+  double: {
+    icon: '⭐',
+    color: '#FFD700',
+    glowColor: 'rgba(255, 215, 0, 0.5)',
+    label: '2배 점수',
+  },
+};
+
 interface Balloon {
   id: number;
   value: number;
@@ -17,6 +54,7 @@ interface Balloon {
   y: number;
   color: string;
   speed: number;
+  powerUp?: PowerUpType;
 }
 
 interface Problem {
@@ -81,7 +119,32 @@ const generateProblem = (difficulty: Difficulty): Problem => {
   return { text, answer };
 };
 
-const generateBalloons = (answer: number, count: number = 6): Balloon[] => {
+// Get a random power-up type (15% chance for any power-up)
+const getRandomPowerUp = (gameMode: GameMode, hasLives: boolean): PowerUpType => {
+  const rand = Math.random();
+  if (rand > 0.15) return null; // 85% no power-up
+
+  // Distribute among power-up types
+  const powerUpRand = Math.random();
+
+  // Heart only available in modes with lives
+  if (powerUpRand < 0.25 && hasLives) {
+    return 'heart';
+  } else if (powerUpRand < 0.5) {
+    return 'freeze';
+  } else if (powerUpRand < 0.75) {
+    return 'bomb';
+  } else {
+    return 'double';
+  }
+};
+
+const generateBalloons = (
+  answer: number,
+  count: number = 6,
+  gameMode: GameMode = 'classic',
+  hasLives: boolean = true
+): Balloon[] => {
   const balloons: Balloon[] = [];
   const values = new Set<number>();
   values.add(answer);
@@ -97,6 +160,9 @@ const generateBalloons = (answer: number, count: number = 6): Balloon[] => {
   const valuesArray = Array.from(values).sort(() => Math.random() - 0.5);
   const containerWidth = typeof window !== 'undefined' ? window.innerWidth - 80 : 300;
 
+  // Decide if we should add a power-up balloon (separate from answer balloons)
+  const powerUp = getRandomPowerUp(gameMode, hasLives);
+
   valuesArray.forEach((value, index) => {
     balloons.push({
       id: Date.now() + index,
@@ -107,6 +173,20 @@ const generateBalloons = (answer: number, count: number = 6): Balloon[] => {
       speed: 0.5 + Math.random() * 0.5,
     });
   });
+
+  // Add power-up balloon if rolled
+  if (powerUp) {
+    const powerUpConfig = POWER_UPS[powerUp];
+    balloons.push({
+      id: Date.now() + count + 1,
+      value: -1, // Special value to indicate power-up
+      x: Math.random() * containerWidth,
+      y: -60 - Math.random() * 50,
+      color: powerUpConfig.color,
+      speed: 0.4 + Math.random() * 0.3, // Slightly slower
+      powerUp,
+    });
+  }
 
   return balloons;
 };
@@ -236,7 +316,14 @@ export default function MathPopGame() {
   const [stageQuestionCount, setStageQuestionCount] = useState(0);
   const QUESTIONS_PER_STAGE = 10;
 
+  // Power-up states
+  const [isFrozen, setIsFrozen] = useState(false);
+  const [isDoubleScore, setIsDoubleScore] = useState(false);
+  const [activePowerUp, setActivePowerUp] = useState<{ type: PowerUpType; key: number } | null>(null);
+
   const animationRef = useRef<number | null>(null);
+  const freezeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const doubleScoreTimerRef = useRef<NodeJS.Timeout | null>(null);
   const cloudAnimationRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -345,12 +432,15 @@ export default function MathPopGame() {
     return 'hard';
   }, [gameMode, currentStage, difficulty]);
 
+  // Check if current mode has lives
+  const hasLivesMode = gameMode === 'classic' || gameMode === 'stage';
+
   const nextProblem = useCallback(() => {
     const actualDifficulty = gameMode === 'stage' ? getStageDifficulty() : difficulty;
     const newProblem = generateProblem(actualDifficulty);
     setProblem(newProblem);
-    setBalloons(generateBalloons(newProblem.answer));
-  }, [difficulty, gameMode, getStageDifficulty]);
+    setBalloons(generateBalloons(newProblem.answer, 6, gameMode, hasLivesMode));
+  }, [difficulty, gameMode, getStageDifficulty, hasLivesMode]);
 
   const startGame = () => {
     playSound('click');
@@ -362,6 +452,13 @@ export default function MathPopGame() {
     setWrongCount(0);
     setFloatingScores([]);
     startTimeRef.current = Date.now();
+
+    // Reset power-up states
+    setIsFrozen(false);
+    setIsDoubleScore(false);
+    setActivePowerUp(null);
+    if (freezeTimerRef.current) clearTimeout(freezeTimerRef.current);
+    if (doubleScoreTimerRef.current) clearTimeout(doubleScoreTimerRef.current);
 
     // Mode-specific initialization
     switch (gameMode) {
@@ -424,6 +521,13 @@ export default function MathPopGame() {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+    // Clear power-up timers
+    if (freezeTimerRef.current) {
+      clearTimeout(freezeTimerRef.current);
+    }
+    if (doubleScoreTimerRef.current) {
+      clearTimeout(doubleScoreTimerRef.current);
+    }
 
     const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
     setResult({
@@ -438,11 +542,65 @@ export default function MathPopGame() {
     router.push('/result');
   }, [score, maxCombo, correctCount, wrongCount, setResult, router, playSound, gameMode]);
 
+  // Activate power-up effect
+  const activatePowerUp = useCallback((type: PowerUpType, x: number, y: number) => {
+    if (!type) return;
+
+    setActivePowerUp({ type, key: Date.now() });
+    playSound('levelUp'); // Use levelUp sound for power-up
+
+    // Trigger special confetti for power-up
+    triggerConfetti(x, y, POWER_UPS[type].color);
+
+    switch (type) {
+      case 'freeze':
+        // Freeze balloons for 3 seconds
+        setIsFrozen(true);
+        if (freezeTimerRef.current) clearTimeout(freezeTimerRef.current);
+        freezeTimerRef.current = setTimeout(() => {
+          setIsFrozen(false);
+          setActivePowerUp(null);
+        }, 3000);
+        break;
+
+      case 'bomb':
+        // Remove all wrong answer balloons
+        setBalloons((prev) => prev.filter((b) => b.value === problem?.answer || b.powerUp));
+        setTimeout(() => setActivePowerUp(null), 1000);
+        break;
+
+      case 'heart':
+        // Add 1 life (only in modes with lives)
+        if (hasLivesMode) {
+          setLives((prev) => Math.min(prev + 1, 5)); // Max 5 lives
+        }
+        setTimeout(() => setActivePowerUp(null), 1000);
+        break;
+
+      case 'double':
+        // Double score for next 5 seconds
+        setIsDoubleScore(true);
+        if (doubleScoreTimerRef.current) clearTimeout(doubleScoreTimerRef.current);
+        doubleScoreTimerRef.current = setTimeout(() => {
+          setIsDoubleScore(false);
+          setActivePowerUp(null);
+        }, 5000);
+        break;
+    }
+  }, [problem, hasLivesMode, playSound, triggerConfetti]);
+
   const handleBalloonTap = (balloon: Balloon) => {
     if (gameState !== 'playing' || !problem) return;
 
     // Pop sound for any balloon tap
     playSound('pop');
+
+    // Handle power-up balloon
+    if (balloon.powerUp) {
+      setBalloons((prev) => prev.filter((b) => b.id !== balloon.id));
+      activatePowerUp(balloon.powerUp, balloon.x, balloon.y);
+      return;
+    }
 
     if (balloon.value === problem.answer) {
       const comboBonus = combo >= 3 ? 5 : 0;
@@ -451,6 +609,11 @@ export default function MathPopGame() {
       // Stage mode bonus
       if (gameMode === 'stage') {
         earnedScore += currentStage * 2; // Bonus points per stage
+      }
+
+      // Double score power-up
+      if (isDoubleScore) {
+        earnedScore *= 2;
       }
 
       setScore((prev) => prev + earnedScore);
@@ -543,13 +706,19 @@ export default function MathPopGame() {
 
     const animate = () => {
       setBalloons((prev) => {
+        // If frozen, don't move balloons (but still run animation frame)
+        if (isFrozen) {
+          return prev;
+        }
+
         const updated = prev.map((balloon) => ({
           ...balloon,
           y: balloon.y + balloon.speed,
         }));
 
         const escaped = updated.filter((b) => b.y > containerHeight);
-        if (escaped.some((b) => b.value === problem?.answer)) {
+        // Only penalize for escaping answer balloons, not power-ups
+        if (escaped.some((b) => b.value === problem?.answer && !b.powerUp)) {
           // Handle escape penalty based on game mode
           switch (gameMode) {
             case 'classic':
@@ -582,7 +751,7 @@ export default function MathPopGame() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [gameState, problem, nextProblem, triggerShake, gameMode]);
+  }, [gameState, problem, nextProblem, triggerShake, gameMode, isFrozen]);
 
   if (gameState === 'ready') {
     return (
@@ -729,53 +898,62 @@ export default function MathPopGame() {
 
         {/* Balloons */}
         <AnimatePresence>
-          {balloons.map((balloon) => (
-            <motion.button
-              key={balloon.id}
-              initial={{ scale: 0, opacity: 0, rotate: -10 }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                rotate: [0, -3, 3, 0],
-              }}
-              exit={{
-                scale: [1, 1.3, 0],
-                opacity: [1, 1, 0],
-                rotate: [0, 15, -15],
-                transition: { duration: 0.3 },
-              }}
-              transition={{
-                rotate: {
-                  repeat: Infinity,
-                  duration: 2,
-                  ease: 'easeInOut',
-                },
-              }}
-              whileTap={{ scale: 0.8 }}
-              onClick={() => handleBalloonTap(balloon)}
-              className="absolute w-16 h-20 flex items-center justify-center cursor-pointer touch-target z-10"
-              style={{
-                left: balloon.x,
-                top: balloon.y,
-              }}
-            >
-              <svg viewBox="0 0 60 75" className="w-full h-full drop-shadow-lg">
-                <defs>
-                  <radialGradient id={`balloon-${balloon.id}`} cx="30%" cy="30%" r="70%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor={balloon.color} stopOpacity="1" />
-                  </radialGradient>
-                </defs>
-                <ellipse cx="30" cy="28" rx="26" ry="28" fill={`url(#balloon-${balloon.id})`} />
-                <ellipse cx="22" cy="18" rx="6" ry="4" fill="white" fillOpacity="0.5" />
-                <polygon points="30,56 26,62 34,62" fill={balloon.color} />
-                <path d="M30,62 Q32,68 30,75" stroke="#888" strokeWidth="1.5" fill="none" />
-              </svg>
-              <span className="absolute top-3 text-xl font-bold text-white drop-shadow-md">
-                {balloon.value}
-              </span>
-            </motion.button>
-          ))}
+          {balloons.map((balloon) => {
+            const isPowerUp = balloon.powerUp != null;
+            const powerUpConfig = isPowerUp ? POWER_UPS[balloon.powerUp!] : null;
+
+            return (
+              <motion.button
+                key={balloon.id}
+                initial={{ scale: 0, opacity: 0, rotate: -10 }}
+                animate={{
+                  scale: isPowerUp ? [1, 1.1, 1] : 1,
+                  opacity: 1,
+                  rotate: isPowerUp ? [0, -5, 5, 0] : [0, -3, 3, 0],
+                }}
+                exit={{
+                  scale: [1, 1.3, 0],
+                  opacity: [1, 1, 0],
+                  rotate: [0, 15, -15],
+                  transition: { duration: 0.3 },
+                }}
+                transition={{
+                  scale: isPowerUp ? { repeat: Infinity, duration: 1 } : undefined,
+                  rotate: {
+                    repeat: Infinity,
+                    duration: isPowerUp ? 1.5 : 2,
+                    ease: 'easeInOut',
+                  },
+                }}
+                whileTap={{ scale: 0.8 }}
+                onClick={() => handleBalloonTap(balloon)}
+                className={`absolute w-16 h-20 flex items-center justify-center cursor-pointer touch-target z-10 ${
+                  isPowerUp ? 'z-20' : ''
+                }`}
+                style={{
+                  left: balloon.x,
+                  top: balloon.y,
+                  filter: isPowerUp ? `drop-shadow(0 0 10px ${powerUpConfig?.glowColor})` : undefined,
+                }}
+              >
+                <svg viewBox="0 0 60 75" className="w-full h-full drop-shadow-lg">
+                  <defs>
+                    <radialGradient id={`balloon-${balloon.id}`} cx="30%" cy="30%" r="70%">
+                      <stop offset="0%" stopColor="white" stopOpacity={isPowerUp ? '0.6' : '0.4'} />
+                      <stop offset="100%" stopColor={balloon.color} stopOpacity="1" />
+                    </radialGradient>
+                  </defs>
+                  <ellipse cx="30" cy="28" rx="26" ry="28" fill={`url(#balloon-${balloon.id})`} />
+                  <ellipse cx="22" cy="18" rx="6" ry="4" fill="white" fillOpacity="0.5" />
+                  <polygon points="30,56 26,62 34,62" fill={balloon.color} />
+                  <path d="M30,62 Q32,68 30,75" stroke="#888" strokeWidth="1.5" fill="none" />
+                </svg>
+                <span className="absolute top-3 text-xl font-bold text-white drop-shadow-md">
+                  {isPowerUp ? powerUpConfig?.icon : balloon.value}
+                </span>
+              </motion.button>
+            );
+          })}
         </AnimatePresence>
 
         {/* Floating Scores */}
@@ -808,6 +986,93 @@ export default function MathPopGame() {
                 }`}
               >
                 {feedback.type === 'correct' ? '⭕' : '❌'}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Freeze Effect Overlay */}
+        <AnimatePresence>
+          {isFrozen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 pointer-events-none z-40 bg-cyan-200/30"
+              style={{
+                backdropFilter: 'blur(1px)',
+              }}
+            >
+              {/* Snowflake particles */}
+              {[...Array(10)].map((_, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{
+                    opacity: [0, 1, 1, 0],
+                    y: ['0%', '100%'],
+                    x: [0, Math.sin(i) * 50],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                  }}
+                  className="absolute text-2xl"
+                  style={{
+                    left: `${10 + i * 9}%`,
+                  }}
+                >
+                  ❄️
+                </motion.span>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Active Power-up Indicator */}
+        <AnimatePresence>
+          {activePowerUp && activePowerUp.type && (
+            <motion.div
+              key={activePowerUp.key}
+              initial={{ scale: 0, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0, y: -50 }}
+              className="absolute top-4 left-1/2 -translate-x-1/2 z-50"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 0.5 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg"
+                style={{
+                  backgroundColor: POWER_UPS[activePowerUp.type].color,
+                }}
+              >
+                <span className="text-xl">{POWER_UPS[activePowerUp.type].icon}</span>
+                <span className="text-white font-bold text-sm">
+                  {POWER_UPS[activePowerUp.type].label}!
+                </span>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Double Score Indicator */}
+        <AnimatePresence>
+          {isDoubleScore && !activePowerUp && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute top-4 right-4 z-50"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 0.5 }}
+                className="flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-400 shadow-lg"
+              >
+                <span>⭐</span>
+                <span className="text-white font-bold text-xs">x2</span>
               </motion.div>
             </motion.div>
           )}
