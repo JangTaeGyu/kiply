@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Gowun_Dodum } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { PWARegister } from "./components/PWARegister";
 import { AccessibilityProvider } from "./components/AccessibilityProvider";
@@ -88,6 +89,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${gowunDodum.variable} antialiased`}>
+        <Analytics />
         <PWARegister />
         <AccessibilityProvider>
           <a href="#main-content" className="skip-link">
