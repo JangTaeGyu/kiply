@@ -12,7 +12,7 @@ const gowunDodum = Gowun_Dodum({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kiply.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kiply.jubrolab.dev";
 
 export const metadata: Metadata = {
   title: {
