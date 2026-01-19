@@ -73,7 +73,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Settings List */}
-      <div className="flex-1 px-5 -mt-4">
+      <div className="flex-1 px-5 mt-4">
         {/* Sound Settings Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
